@@ -1,4 +1,4 @@
-package hackingtool.Devices;
+package hackingtool.devices;
 
 import hackingtool.hacking.Account;
 import hackingtool.hacking.Alerts;
@@ -6,7 +6,7 @@ import hackingtool.hacking.Alerts;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TargetDevice {
+public class Device implements Hackable{
 
     private String systemName;
     private OS 	   os;
@@ -14,9 +14,12 @@ public class TargetDevice {
     private int    infosec;
     private Alerts alert;
     private List<Account> accounts;
+    
+    //private Device       masterDevice;
+    //private List<Device> slavedDevices;
 
 
-    private TargetDevice() {
+    private Device() {
     }
     
     public class Builder {
@@ -52,9 +55,9 @@ public class TargetDevice {
 			return this;
 		}
 		
-		public TargetDevice build() {
+		public Device build() {
 			
-			TargetDevice t = new TargetDevice();
+			Device t = new Device();
 			
 			t.systemName = systemName;
 			t.os		 = os;
@@ -67,12 +70,12 @@ public class TargetDevice {
 		}
     }
 
-    public String getSystemName() {
+    public String getName() {
 		return systemName;
 	}
 
-	public void setSystemName(String systemName) {
-		this.systemName = systemName;
+	public void setName(String name) {
+		this.systemName = name;
 	}
 
 	public List<Account> getAccounts() {
@@ -94,22 +97,19 @@ public class TargetDevice {
     public void clearAccounts() {
     	accounts.clear();
     }
-
-	public void setName(String name){
-        this.systemName = name;
-    }
-    public String getname(){
-        return systemName;
-    }
+    
     public void setFirewall(int firewall){
         this.firewall = firewall;
     }
+    
     public int getFirewall(){
         return firewall;
     }
+    
     public void setInfosec(int infosec){
         this.infosec = infosec;
     }
+    
     public int getInfosec(){
         return infosec;
     }
@@ -126,13 +126,17 @@ public class TargetDevice {
         return alert;
     }
     
+    public int getAlertLevel() {
+    	return alert.getLevel();
+    }
+    
     public void increaseAlert() {
     	// Cannot go higher than ACTIVE
     	if (alert != Alerts.ACTIVE) {
     		setAlertLevel(alert.getLevel() + 1);
     	}
     }
-    
+ 
     public void reduceAlert() {
     	// Cannot go lower than NONE
     	if (alert != Alerts.NONE) {

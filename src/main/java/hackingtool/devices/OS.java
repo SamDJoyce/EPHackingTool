@@ -1,4 +1,4 @@
-package hackingtool.Devices;
+package hackingtool.devices;
 
 public class OS {
 

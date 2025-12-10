@@ -4,6 +4,8 @@ import hackingtool.User;
 
 public class Account {
 
+	private static int nextID = 0;
+	private int id;
 	private User user;
 	private IntruderStatus status;
 	private Privileges priv;
@@ -14,6 +16,7 @@ public class Account {
 
 
 	public Account(User user, IntruderStatus status, Privileges priv, int dur) {
+		this.id = nextID++;
 		this.user = user;
 		this.status = status;
 		this.priv = priv;
@@ -22,6 +25,14 @@ public class Account {
         this.deathRating = dur*2;
 	}
 
+	public int getID() {
+		return id;
+	}
+	
+	public void setID(int id) {
+		this.id = id;
+	}
+	
 	public User getUser() {
 		return user;
 	}
