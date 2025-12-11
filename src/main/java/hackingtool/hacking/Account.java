@@ -14,6 +14,9 @@ public class Account {
     private int deathRating;
 
 
+    public Account () {
+    	this.id = nextID++;
+    }
 
 	public Account(User user, IntruderStatus status, Privileges priv, int dur) {
 		this.id = nextID++;

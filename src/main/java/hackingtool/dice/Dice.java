@@ -13,7 +13,7 @@ public class Dice {
 	private static final String CRIT_FAIL 	 = "Critical Failure";
 	private static final String CRIT_SUCC 	 = "Critical Success";
 	
-	private final List<Integer> crits = List.of(00,11,22,33,44,55,66,77,88);
+	private static final List<Integer> crits = List.of(00,11,22,33,44,55,66,77,88);
 	
 	private int 	sides;
 	private int 	target;	
@@ -64,10 +64,17 @@ public class Dice {
 
 	// ----- Roll evaluation -----\\
 	
-    public boolean isCrit(){         //returns true if results is in crits
+    /**
+     * @return true if results is in crits (a double number)
+     */
+    public boolean isCrit(){         //
         return crits.contains(results);
     }
     
+    /**
+     * @param roll	A value between 0 and 99
+     * @return		true if results is in crits (a double number)
+     */
     public boolean isCrit(int roll){         //returns true if results is in crits
         return crits.contains(roll);
     }
@@ -82,41 +89,66 @@ public class Dice {
             && isCrit();
     }
 
-    public boolean isCritFail(){      //true if not a hit and a crit or 99
+    /**
+     * @return true if not a hit and a crit or 99
+     */
+    public boolean isCritFail(){
         return !isHit()
            && ( isCrit()
             ||  results == 99);      //99 Automatically fails any test
     }
 
-    public boolean isHit(){           //true if the results is less than or equal to target
+    /**
+     * @return true if the results is less than or equal to target
+     */
+    public boolean isHit(){         
         return results <= target;
     }
     
-    public boolean isHit(int roll, int target) { //true if the roll is less than or equal to target
+    /**
+     * @param roll		A value between 0 and 99
+     * @param target	The value to roll equal or less than
+     * @return 			true if the roll is less than or equal to target
+     */
+    public boolean isHit(int roll, int target) { //
     	return roll <= target;
     }
 
-    public boolean isDubSupSuccess(){ //true if results is a hit and above 65
+    /**
+     * @return true if results is a hit and above 65
+     */
+    public boolean isDubSupSuccess(){
         return  isHit()
              && results >= 66;
     }
 
-    public boolean isSupSuccess(){    //true if results is a hit and above 32
+    /**
+     * @return true if results is a hit and above 32
+     */
+    public boolean isSupSuccess(){ 
         return  isHit()
              && results >= 33;
     }
 
-    public boolean isDubSupFail(){    //true if not a hit and below 34
+    /**
+     * @return true if not a hit and below 34
+     */
+    public boolean isDubSupFail(){ 
         return !isHit()
             && results <= 33;
     }
 
-    public boolean isSupFail(){       //true if not a hit and below 67
+    /**
+     * @return true if not a hit and below 67
+     */
+    public boolean isSupFail(){  
         return !isHit()
             && results <= 66;
     }
 
     /**
+     * Evaluate the results of a percentile dice roll
+     * 
      * @param target	The value the player aims to roll equal or less than
      * @return			A string describing the outcome
      */
@@ -126,27 +158,27 @@ public class Dice {
         if      (isCritSuccess()){  //Critical Success
             System.out.printf("%d/%d, Critical Success%n",results, target);
             eval = CRIT_SUCC;
-            return CRIT_SUCC;
+            return eval;
         }else if(isCritFail()){     //critical fail
             System.out.printf("%d/%d, Critical Failure%n",results, target);
             eval = CRIT_FAIL;
-            return CRIT_FAIL;
+            return eval;
         }else if(isDubSupSuccess()){//double superior success
             System.out.printf("%d/%d, x2 Superior Success%n",results, target);
             eval = DUB_SUP_SUCC;
-            return DUB_SUP_SUCC;
+            return eval;
         }else if(isSupSuccess()){   //superior success
             System.out.printf("%d/%d, Superior Success%n",results, target);;
             eval = SUP_SUCC;
-            return SUP_SUCC;
+            return eval;
         }else if (isDubSupFail()){  //double superior failure
             System.out.printf("%d/%d, x2 Superior Failure%n",results, target);
             eval = DUP_SUP_FAIL;
-            return DUP_SUP_FAIL;
+            return eval;
         }else if (isSupFail()){     //superior failure
             System.out.printf("%d/%d, Superior Failure%n",results, target);
             eval = SUP_FAIL;
-            return SUP_FAIL;
+            return eval;
         }else{                      //regular success or failure
             System.out.printf("The roll is %d/%d.%nThis is a %s.%n", results, target, isHit() ? "success" : "failure");
             if(isHit()) { 
@@ -154,7 +186,7 @@ public class Dice {
             	return SUCCESS;
             }
             eval = FAIL;
-            return FAIL;
+            return eval;
         }
     }
 
@@ -170,13 +202,29 @@ public class Dice {
         return checkRoll(target);
     }
    
-
-    public int roll(int dice){
-    	this.sides = dice;
+    /**
+     * @param dice	An enum of dice types & their number of sides
+     * @return		The value produced by the dice roll
+     */
+    public int roll(Types dice){
+    	this.sides = dice.get();
         this.results = (int) (Math.random()*sides);
         return this.results;
     } 
     
+    /**
+     * @param sides	An integer value representing the die's number of sides
+     * @return		The value produced by the dice roll
+     */
+    public int roll (int sides) {
+    	this.sides = sides;
+    	this.results = (int) (Math.random()*sides);
+        return this.results;
+    }
+    
+    /**
+     * @return	The value produced by the dice roll
+     */
     public int roll () {
         this.results = (int) (Math.random()*sides);
         return this.results;

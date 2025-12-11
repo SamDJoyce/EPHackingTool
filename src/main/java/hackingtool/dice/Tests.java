@@ -7,8 +7,13 @@ package hackingtool.dice;
  * @author SamJ
  */
 public class Tests {
-	private String attOutcome;
-	private String defOutcome;
+	
+	private int 	roll;
+	private int		attRoll;
+	private int		defRoll;
+	private String 	outcome;
+	private String 	attOutcome;
+	private String 	defOutcome;
 	
 	// ----- Constructor ----- \\
 	
@@ -16,6 +21,38 @@ public class Tests {
 	}
 	
 	// ----- Getters/Setters ----- \\
+	
+	public int getRoll() {
+		return roll;
+	}
+
+	public void setRoll(int roll) {
+		this.roll = roll;
+	}
+
+	public int getAttRoll() {
+		return attRoll;
+	}
+
+	public void setAttRoll(int attRoll) {
+		this.attRoll = attRoll;
+	}
+
+	public int getDefRoll() {
+		return defRoll;
+	}
+
+	public void setDefRoll(int defRoll) {
+		this.defRoll = defRoll;
+	}
+
+	public String getOutcome() {
+		return outcome;
+	}
+	
+	public void setOutcome(String outcome) {
+		this.outcome = outcome;
+	}
 	
 	public String getAttOutcome() {
 		return attOutcome;
@@ -41,8 +78,8 @@ public class Tests {
 	 */
 	public Boolean successTest(int target) {
 		Dice dice = DiceFactory.get(Types.PERCENTILE);
-		dice.roll();
-		attOutcome = dice.checkRoll(target);
+		roll = dice.roll();
+		outcome = dice.checkRoll(target);
 		return dice.isHit();
 	}
 	
@@ -56,18 +93,17 @@ public class Tests {
     	Dice defDice = DiceFactory.get(Types.PERCENTILE);
     	
     	// Roll and check the attacker's dice
-    	attDice.roll();
+    	attRoll    = attDice.roll();
     	attOutcome = attDice.checkRoll(attacker);
     	
     	// Roll and check the defender's dice
-    	defDice.roll();
+    	defRoll    = defDice.roll();
     	defOutcome = defDice.checkRoll(defender);
     	
     	// Compare results
     	
     	    // If both succeed but the attacker crits
-    	if (attDice.isHit()
-    	&&  attDice.isCrit() 
+    	if (attDice.isCritSuccess() 
     	&&  defDice.isHit() 
     	&& !defDice.isCrit()) {
     		return true;
@@ -75,13 +111,17 @@ public class Tests {
     		//If both sides succeed but the defender crits
     	if (attDice.isHit()
     	&& !attDice.isCrit() 
-    	&&  defDice.isHit() 
-    	&&  defDice.isCrit()) {
+    	&&  defDice.isCritSuccess()) {
 			return true;
 		}
+    	
+    	if (attDice.isCritSuccess()
+    	&&  defDice.isCritSuccess()) {
+    		return attRoll > defRoll;
+    	}
     	    // If both succeed, higher roll wins
     	if (attDice.isHit() && defDice.isHit()) {
-    		return attDice.getResults() > defDice.getResults();
+    		return attRoll > defRoll;
     	}
     		// Attacker succeeds, defender fails
     	if (attDice.isHit() && !defDice.isHit() ) {
