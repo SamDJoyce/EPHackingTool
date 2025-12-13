@@ -4,7 +4,7 @@ import hackingtool.User;
 
 public class Account {
 
-	private static int nextID = 0;
+	//private static int nextID = 0;
 	private int id;
 	private User user;
 	private IntruderStatus status;
@@ -14,18 +14,68 @@ public class Account {
     private int deathRating;
 
 
-    public Account () {
-    	this.id = nextID++;
+    private Account () {
     }
 
-	public Account(User user, IntruderStatus status, Privileges priv, int dur) {
-		this.id = nextID++;
-		this.user = user;
-		this.status = status;
-		this.priv = priv;
-        this.durability = dur;
-        this.woundThresh = dur/5;
-        this.deathRating = dur*2;
+//	public Account(User user, IntruderStatus status, Privileges priv, int dur) {
+//		this.id = nextID++;
+//		this.user = user;
+//		this.status = status;
+//		this.priv = priv;
+//        this.durability = dur;
+//
+//	}
+	
+	public static class Builder {
+		private static int nextID = 0;
+		private int id;
+		private User user;
+		private IntruderStatus status;
+		private Privileges priv;
+	    private int woundThresh;
+	    private int durability;
+	    private int deathRating;
+	    
+	    public Builder setID(int id) {
+	    	this.id = id;
+	    	return this;
+	    }
+	    
+	    public Builder setUser (User user) {
+	    	this.user = user;
+	    	return this;
+	    }
+	    
+	    public Builder setStatus(IntruderStatus status) {
+	    	this.status = status;
+	    	return this;
+	    }
+	    
+	    public Builder setPriv(Privileges priv) {
+	    	this.priv = priv;
+	    	return this;
+	    }
+	    
+	    public Builder setDur(int durability) {
+	    	this.durability  = durability;
+	        this.woundThresh = durability/5;
+	        this.deathRating = durability*2;
+	    	return this;
+	    }
+	    
+	    public Account build() {
+	    	Account a = new Account();
+	    	
+	    	a.id = (id == 0 ? ++nextID : id);
+	    	a.user = user;
+	    	a.status = status;
+	    	a.priv = priv;
+	    	a.durability = durability;
+	    	a.deathRating = deathRating;
+	    	a.woundThresh= woundThresh;
+	    	
+	    	return a;
+	    }
 	}
 
 	public int getID() {

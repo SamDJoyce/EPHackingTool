@@ -22,7 +22,7 @@ public class Device implements Hackable{
     private Device() {
     }
     
-    public class Builder {
+    public static class Builder {
     	private String systemName;
     	private OS     os;
         private int    firewall;
@@ -57,16 +57,16 @@ public class Device implements Hackable{
 		
 		public Device build() {
 			
-			Device t = new Device();
+			Device d = new Device();
 			
-			t.systemName = systemName;
-			t.os		 = os;
-			t.firewall   = firewall;
-			t.infosec    = infosec;
-			t.alert      = (alert != null) ? alert : Alerts.NONE;
-			t.accounts   = (accounts != null) ? accounts : new ArrayList<>() ;
+			d.systemName = systemName;
+			d.os		 = os;
+			d.firewall   = firewall;
+			d.infosec    = infosec;
+			d.alert      = (alert != null) ? alert : Alerts.NONE;
+			d.accounts   = (accounts != null) ? accounts : new ArrayList<>() ;
 			
-			return t;
+			return d;
 		}
     }
 

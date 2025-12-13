@@ -65,6 +65,7 @@ public class Hacking {
 		
 		Tests hack = new Tests();
 		Boolean success;
+		Account intruder;
 		
 		if (bruteForce) { 	// Brute Force 
 			
@@ -72,15 +73,28 @@ public class Hacking {
 			
 			if (success) {
 				
-				Account intruder = new Account();
-				
 				if (CRIT_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 					// critical success: 
 					// covert status
 					// Passive alert triggered
+					
+					// Create the user's new account
+					intruder = new Account.Builder()
+										  .setUser(hacker)
+										  .setStatus(IntruderStatus.COVERT)
+										  .setDur(hacker.getDurability())
+										  .build();
+					// Register the new account
+					target.addAccount(intruder);
+					// Set the target to passive alert
+					target.setAlert(Alerts.PASSIVE);
 				} else {
 					// Normal success:
 					// spotted status, active alert
+					
+					// Create the account
+					intruder = new Account.Builder()
+										  .build();
 				}
 				if (DUB_SUP_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 					// Gain admin privileges
