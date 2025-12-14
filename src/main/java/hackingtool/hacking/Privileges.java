@@ -17,9 +17,9 @@ public enum Privileges {
 	}
 	
 	public static Privileges fromLevel(int level) {
-		for (Privileges a : Privileges.values()) {
-			if (a.getLevel() == level) {
-				return a;
+		for (Privileges p : Privileges.values()) {
+			if (p.getLevel() == level) {
+				return p;
 			}
 		}
 		return PUBLIC;

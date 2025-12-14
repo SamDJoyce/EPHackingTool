@@ -7,7 +7,7 @@ public class Dice {
     private static final String FAIL 		 = "Fail";
 	private static final String SUCCESS 	 = "Success";
 	private static final String SUP_FAIL 	 = "Superior Failure";
-	private static final String DUP_SUP_FAIL = "Double Superior Failure";
+	private static final String DUB_SUP_FAIL = "Double Superior Failure";
 	private static final String SUP_SUCC 	 = "Superior Success";
 	private static final String DUB_SUP_SUCC = "Double Superior Success";
 	private static final String CRIT_FAIL 	 = "Critical Failure";
@@ -173,7 +173,7 @@ public class Dice {
             return eval;
         }else if (isDubSupFail()){  //double superior failure
             System.out.printf("%d/%d, x2 Superior Failure%n",results, target);
-            eval = DUP_SUP_FAIL;
+            eval = DUB_SUP_FAIL;
             return eval;
         }else if (isSupFail()){     //superior failure
             System.out.printf("%d/%d, Superior Failure%n",results, target);

@@ -1,4 +1,4 @@
-package hackingtool;
+package hackingtool.devices;
 
 public class User {
 	private String name;

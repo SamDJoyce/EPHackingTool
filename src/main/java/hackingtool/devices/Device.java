@@ -1,6 +1,5 @@
 package hackingtool.devices;
 
-import hackingtool.hacking.Account;
 import hackingtool.hacking.Alerts;
 
 import java.util.ArrayList;
@@ -77,6 +76,24 @@ public class Device implements Hackable{
 	public void setName(String name) {
 		this.systemName = name;
 	}
+	
+	public Account getAccount(int id) {
+		for (Account a : accounts) {
+			if (a.getID() == id) {
+				return a;
+			}
+		}
+		return null;
+	}
+	
+	public Account getAccount (User user) {
+		for (Account a : accounts) {
+			if (a.getUser().equals(user)) {
+				return a;
+			}
+		}
+		return null;
+	}
 
 	public List<Account> getAccounts() {
 		return accounts;
@@ -88,6 +105,14 @@ public class Device implements Hackable{
 	
     public void addAccount(Account account) {
     	accounts.add(account);
+    }
+    
+    public void updateAccount (Account account) {
+    	for (Account a : accounts) {
+    		if (a.getID() == account.getID()) {
+    			a = account;
+    		}
+    	}
     }
 
     public void removeAccount(Account account) {

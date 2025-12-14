@@ -2,7 +2,6 @@ package hackingtool.devices;
 
 import java.util.List;
 
-import hackingtool.hacking.Account;
 import hackingtool.hacking.Alerts;
 
 public interface Hackable {
@@ -16,8 +15,11 @@ public interface Hackable {
 	int getInfosec();
 	
 	List<Account> getAccounts();
+	Account getAccount(int id);
+	Account getAccount (User user);
 	void setAccounts(List<Account> accounts);
 	void addAccount(Account account);
+	void updateAccount (Account account);
 	void removeAccount(Account account);
 	void clearAccounts();
 	

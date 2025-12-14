@@ -1,7 +1,12 @@
-package hackingtool.hacking;
+package hackingtool.devices;
 
-import hackingtool.User;
+import hackingtool.hacking.IntruderStatus;
+import hackingtool.hacking.Privileges;
 
+/**
+ * An Account is a container for a user's system privileges
+ * intruder status and other important metadata
+ */
 public class Account {
 
 	//private static int nextID = 0;
@@ -16,15 +21,6 @@ public class Account {
 
     private Account () {
     }
-
-//	public Account(User user, IntruderStatus status, Privileges priv, int dur) {
-//		this.id = nextID++;
-//		this.user = user;
-//		this.status = status;
-//		this.priv = priv;
-//        this.durability = dur;
-//
-//	}
 	
 	public static class Builder {
 		private static int nextID = 0;
@@ -67,12 +63,12 @@ public class Account {
 	    	Account a = new Account();
 	    	
 	    	a.id = (id == 0 ? ++nextID : id);
-	    	a.user = user;
-	    	a.status = status;
-	    	a.priv = priv;
-	    	a.durability = durability;
+	    	a.user 		  = user;
+	    	a.status 	  = status;
+	    	a.priv 		  = priv;
+	    	a.durability  = durability;
 	    	a.deathRating = deathRating;
-	    	a.woundThresh= woundThresh;
+	    	a.woundThresh = woundThresh;
 	    	
 	    	return a;
 	    }
@@ -100,6 +96,22 @@ public class Account {
 
 	public void setStatus(IntruderStatus status) {
 		this.status = status;
+	}
+	
+	public void setStatusLevel(int level) {
+		status = IntruderStatus.fromLevel(level);
+	}
+	
+	public void improveStatus() {
+		if (status != IntruderStatus.HIDDEN) {
+			setStatusLevel(status.getLevel()-1);
+		}
+	}
+	
+	public void worsenStatus() {
+		if (status != IntruderStatus.SPOTTED) {
+			setStatusLevel(status.getLevel()+1);
+		}
 	}
 
 	public Privileges getPriv() {
