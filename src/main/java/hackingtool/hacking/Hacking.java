@@ -4,7 +4,7 @@ import hackingtool.devices.Account;
 import hackingtool.devices.Hackable;
 import hackingtool.devices.User;
 import hackingtool.dice.Tests;
-
+// test
 public class Hacking {
 	private static final int 	BF_MOD		 = -30;
 	private static final String SUP_SUCC 	 = "Superior Success";
