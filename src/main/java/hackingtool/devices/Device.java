@@ -7,11 +7,12 @@ import java.util.List;
 
 public class Device implements Hackable{
 
-    private String systemName;
-    private OS 	   os;
-	private int    firewall;
-    private int    infosec;
-    private Alerts alert;
+    private String  systemName;
+    private Boolean isMindware;
+    private OS 	    os;
+	private int     firewall;
+    private int     infosec;
+    private Alerts  alert;
     private List<Account> accounts;
     
     //private Device       masterDevice;
@@ -23,6 +24,7 @@ public class Device implements Hackable{
     
     public static class Builder {
     	private String systemName;
+    	private Boolean isMindware;
     	private OS     os;
         private int    firewall;
         private int    infosec;
@@ -33,6 +35,10 @@ public class Device implements Hackable{
 			this.systemName = systemName;
 			return this;
 		}
+        public Builder setMindware(Boolean isMindware) {
+        	this.isMindware = isMindware;
+        	return this;
+        }
         public Builder setOS(OS os) {
         	this.os = os;
         	return this;
@@ -59,6 +65,7 @@ public class Device implements Hackable{
 			Device d = new Device();
 			
 			d.systemName = systemName;
+			d.isMindware = (isMindware != null) ? isMindware : false;
 			d.os		 = os;
 			d.firewall   = firewall;
 			d.infosec    = infosec;
@@ -175,6 +182,11 @@ public class Device implements Hackable{
 
 	public void setOs(OS os) {
 		this.os = os;
+	}
+
+	@Override
+	public boolean isMindware() {
+		return isMindware;
 	}
     
 

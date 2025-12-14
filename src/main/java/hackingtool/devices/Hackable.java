@@ -29,4 +29,5 @@ public interface Hackable {
 	int getAlertLevel();
 	void increaseAlert();
 	void reduceAlert();
+	boolean isMindware();
 }

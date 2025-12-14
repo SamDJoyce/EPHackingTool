@@ -6,14 +6,17 @@ import hackingtool.devices.User;
 import hackingtool.dice.Tests;
 // test
 public class Hacking {
-	private static final int 	BF_MOD		 = -30;
-	private static final String SUP_SUCC 	 = "Superior Success";
-	private static final String DUB_SUP_SUCC = "Double Superior Success";
-	private static final String CRIT_SUCC 	 = "Critical Success";
-	private static final String SUCCESS		 = "Success";
-	private static final String CRIT_FAIL 	 = "Critical Failure";
-	private static final String SUP_FAIL 	 = "Superior Failure";
-	private static final String DUB_SUP_FAIL = "Double Superior Failure";
+	private static final int 	BF_MOD		  = -30;
+	private static final int    HIDDEN_MOD	  = 10;
+	private static final int ACTIVE_ALERT_MOD = -10;
+	private static final int    MINDWARE_MOD  = -30;
+	private static final String SUP_SUCC 	  = "Superior Success";
+	private static final String DUB_SUP_SUCC  = "Double Superior Success";
+	private static final String CRIT_SUCC 	  = "Critical Success";
+	private static final String SUCCESS		  = "Success";
+	private static final String CRIT_FAIL 	  = "Critical Failure";
+	private static final String SUP_FAIL 	  = "Superior Failure";
+	private static final String DUB_SUP_FAIL  = "Double Superior Failure";
 	
 	private Hackable target;
 	private User     hacker;
@@ -36,8 +39,16 @@ public class Hacking {
 		return this.target;
 	}
 	
+	public String getTargetName() {
+		return target.getName();
+	}
+	
 	public User getHacker() {
 		return hacker;
+	}
+	
+	public String getHackerName() {
+		return hacker.getName();
 	}
 
 	public void setHacker(User hacker) {
@@ -64,7 +75,6 @@ public class Hacking {
 	 * 			access to the target system
 	 */
 	public Boolean intrusion() {
-		
 		Tests   hack = new Tests();
 		Boolean success;
 		Account intruder;
@@ -246,8 +256,38 @@ public class Hacking {
 	
 	// System Subversion
 	public Boolean subvertSystem() {
-		// TODO a hacking check with generic output
-		return false;
+		Tests   subvert = new Tests();
+		Account a = target.getAccount(hacker);
+		int     modifier = applyModifiers(a);
+		Boolean success = subvert.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
+		String  attOutcome = subvert.getAttOutcome();
+		
+		if (!success) { // Failure
+			checkExposure(attOutcome,a);
+		} // On a success the thing happens
+		  // but there are no logical changes
+		
+		return success;
+	}
+
+	private int applyModifiers(Account a) {
+		int modifier = 0;
+		// -30 modifier if the hacker is brute forcing
+		if (bruteForce) {
+			modifier += BF_MOD;
+		}
+		// +10 modifier to subvert if user is hidden
+		if (IntruderStatus.HIDDEN.equals(a.getStatus())) {
+			modifier += HIDDEN_MOD;
+		}
+		// -10 modifier to subvert if the system is on active alert
+		if (Alerts.ACTIVE.equals(target.getAlert())) {
+			modifier += ACTIVE_ALERT_MOD;
+		}
+		if (target.isMindware()) {
+			modifier += MINDWARE_MOD;
+		}
+		return modifier;
 	}
 	
 	// Countermeasures
