@@ -18,9 +18,12 @@ public class Hacking {
 	private static final String SUP_FAIL 	  = "Superior Failure";
 	private static final String DUB_SUP_FAIL  = "Double Superior Failure";
 	
+	private final Tests test = new Tests();
+
 	private Hackable target;
 	private User     hacker;
 	private Boolean  bruteForce;
+	
 
 
 	// ----- Constructor ----- \\
@@ -31,6 +34,11 @@ public class Hacking {
 	}
 	
 	// ----- getters/setters ----- \\
+	
+	public Tests getTest() {
+		return test;
+	}
+	
 	public void setTarget(Hackable target) {
 		this.target = target;
 	}
@@ -75,17 +83,17 @@ public class Hacking {
 	 * 			access to the target system
 	 */
 	public Boolean intrusion() {
-		Tests   hack = new Tests();
+		//Tests   hack = new Tests();
 		Boolean success;
 		Account intruder;
 		
 		if (bruteForce) { 	// Brute Force intrusion
 			// Perform the opposed test
-			success = hack.opposedTest(hacker.getInfosec() - BF_MOD, target.getFirewall());
+			success = test.opposedTest(hacker.getInfosec() - BF_MOD, target.getFirewall());
 			
 			// The attacker has won the opposed check
 			if (success) {
-				intruder = checkBFIntrusionSuccess(hack);
+				intruder = checkBFIntrusionSuccess(test);
 				
 			} else {
 				// Failure
@@ -99,11 +107,11 @@ public class Hacking {
 			return success;
 			
 		} else { 			// Subtle Intrusion
-			success = hack.opposedTest(hacker.getInfosec(), target.getFirewall());
+			success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
 			
 			if (success) {
-				intruder = checkSubtleIntrusionSuccess(hack);
-				
+				intruder = checkSubtleIntrusionSuccess(test);
+				target.addAccount(intruder);
 			} else { //Failure
 				// Fail to gain access
 				// System goes on passive alert
@@ -111,6 +119,7 @@ public class Hacking {
 					target.setAlert(Alerts.PASSIVE);
 				}
 			}
+			
 			return success;
 		}
 	}
@@ -231,9 +240,9 @@ public class Hacking {
 	
 	// Upgrade Status
 	public void upgradeStatus() {
-		Tests upgrade = new Tests();
-		Boolean success = upgrade.opposedTest(hacker.getInfosec(), target.getFirewall());
-		String attOutcome = upgrade.getAttOutcome();
+		//Tests upgrade = new Tests();
+		Boolean success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
+		String attOutcome = test.getAttOutcome();
 		Account a = null;
 			
 		if (target.getAccount(hacker) != null) {

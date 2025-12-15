@@ -4,15 +4,16 @@
     import="hackingtool.devices.Hackable"
     import="hackingtool.devices.User"
     import="hackingtool.devices.Account"
+    import="hackingtool.dice.Tests"
   %>
 <!DOCTYPE html>
 <html>
 	<%
 	// TODO assign this properly
-		Hacking hack = (Hacking) request.getAttribute("hack");
-		Hackable target = hack.getTarget();
-		User hacker = hack.getHacker();
-		Account account = target.getAccount(hacker);
+		final User hacker 	  = (User) request.getAttribute("hacker");
+		final Hackable target = (Hackable) request.getAttribute("target");
+		final Account account = target.getAccount(hacker);
+		final Tests test 	  = (Tests) request.getAttribute("test");
 	%>
 <head>
 	<meta charset="UTF-8">
@@ -21,7 +22,7 @@
 
 <body>
 	<!-- Target System Information -->
-	<h1>Target System: <%= hack.getTargetName() %> </h1>
+	<h1>Target System: <%= target.getName() %> </h1>
 	<div id="target">
 		<h2>Target</h2>
 		<table id="targetTable">
@@ -35,6 +36,30 @@
 				<td><%= target.getAlert() %></td>
 			</tr>			
 		</table>
+		<!-- Action buttons -->
+		<form method='post' action='Hacking'>
+			<input type='hidden' name='action'value='intrusion'>
+			<input type='checkbox' name='bruteForce' value='true' id='bfCheck'>
+			<label for='bfCheck'>Brute force</label>
+			<input type='submit' value='Perform Intrusion'>
+		</form>
+			<% 	
+		if (account != null){
+		%>
+			<!-- These tests are only possible with an account -->
+			<!-- Improve status -->
+			<form method='post' action='Hacking'>
+				<input type='hidden' name='action'value='improveStatus'>
+				<input type='submit' value='Improve Status'>
+			</form>
+			<!-- Subversion -->
+			<form method='post' action='Hacking'>
+				<input type='hidden' name='action'value='subversion'>
+				<input type='submit' value='Subvert System'>
+			</form>
+		<%		
+		}
+		%>
 	</div>
 	<br><hr><br>
 	<div id="hacker">
@@ -52,6 +77,20 @@
 			</tr>
 		</table>
 	</div>
+	<br><hr><br>
+	<!-- Show roll details -->
+	<!-- should create some kind of log of actions -->
+	<% 	
+	if (test != null){
+	%>
+		<p> Attacker rolled: <%= test.getAttRoll() %> </p>
+		<p><%= test.getAttOutcome() %></p>
+		<br>
+		<p>Defender rolled: <%= test.getDefRoll() %></p>
+		<p><%= test.getDefOutcome() %></p>
+	<%		
+	}
+	%>
 </body>
 
 </html>

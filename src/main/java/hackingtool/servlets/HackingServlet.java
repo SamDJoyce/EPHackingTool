@@ -19,6 +19,13 @@ import hackingtool.hacking.Hacking;
  */
 @WebServlet("/Hacking")
 public class HackingServlet extends HttpServlet {
+	private static final String SUBVERSION = "subversion";
+	private static final String IMPROVE_STATUS = "improveStatus";
+	private static final String HACKING_JSP = "WEB-INF/views/Hacking.jsp";
+	private static final String BRUTE_FORCE = "bruteForce";
+	private static final String ACTION 	  = "action";
+	private static final String INTRUSION = "intrusion";
+
 	private static final long serialVersionUID = 1L;
 	
 	// Create example system for testing
@@ -31,6 +38,7 @@ public class HackingServlet extends HttpServlet {
 												   .build();
 	// Create example user for testing
 	private static final User hacker = new User("TestUser", 75, 75, 10);
+	private Hacking hack;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -44,9 +52,17 @@ public class HackingServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Hacking hack = new Hacking(target,hacker,false);
-		request.setAttribute("hack", hack);
-		request.getRequestDispatcher("WEB-INF/views/Hacking.jsp")
+		String action;
+		if (hack != null) {
+			request.setAttribute("test",   hack.getTest());
+			request.setAttribute("target", hack.getTarget());
+			request.setAttribute("hacker", hack.getHacker());
+		} else {
+			request.setAttribute("target", target);
+			request.setAttribute("hacker", hacker);
+		}
+
+		request.getRequestDispatcher(HACKING_JSP)
 				.forward(request, response);
 	}
 
@@ -54,8 +70,29 @@ public class HackingServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+		String  action;
+		String  bruteForceParam;
+		Boolean bruteForce = false;
+		if (request.getParameter(ACTION) != null) {
+			action = request.getParameter(ACTION);
+		} else {
+			action = "none";
+		}
+		if (request.getParameter(BRUTE_FORCE) != null) {
+			bruteForceParam = request.getParameter(BRUTE_FORCE);
+			bruteForce = Boolean.valueOf(bruteForceParam);
+		}
+		// Check action
+		if (INTRUSION.equalsIgnoreCase(action)) {
+			// do the intrusion
+			hack = new Hacking(target, hacker, bruteForce);
+			hack.intrusion();
+		} else if (IMPROVE_STATUS.equalsIgnoreCase(action)) {
+			//TODO
+		} else if (SUBVERSION.equalsIgnoreCase(action)) {
+			//TODO
+		}
+		doGet(request,response);
 	}
 
 }
