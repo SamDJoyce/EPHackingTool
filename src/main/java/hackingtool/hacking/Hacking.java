@@ -10,6 +10,9 @@ import hackingtool.devices.IntruderStatus;
 import hackingtool.devices.Privileges;
 import hackingtool.devices.User;
 import hackingtool.dice.Tests;
+import hackingtool.logging.Observable;
+import hackingtool.logging.Observer;
+import hackingtool.logging.Event;
 // test
 public class Hacking implements Observable{
 	private static final int 	BF_MOD		  = -30;
@@ -29,17 +32,17 @@ public class Hacking implements Observable{
 	private Hackable target;
 	private User     hacker;
 	private Boolean  bruteForce;
-	private String   log;
+	private Event    log;
 	private List<Observer> observers;
 
 
 	// ----- Constructor ----- \\
 	public Hacking(Hackable target, User hacker, Boolean bruteForce) {
-		this.target = target;
-		this.hacker = hacker;
-		this.bruteForce = bruteForce;
-		this.observers = new ArrayList<>();
-		this.log = "";
+		this.target 	= target;
+		this.hacker 	= hacker;
+		this.bruteForce	= bruteForce;
+		this.observers 	= new ArrayList<>();
+		this.log 		= new Event();
 	}
 	
 	// ----- getters/setters ----- \\
@@ -81,8 +84,12 @@ public class Hacking implements Observable{
 		this.bruteForce = bruteForce;
 	}
 	
-	public String getLog() {
+	public Event getLog() {
 		return log;
+	}
+	
+	public void clearLog() {
+		log.clear();
 	}
 	
 	// ----- Methods ----- \\
@@ -102,14 +109,14 @@ public class Hacking implements Observable{
 		
 		if (bruteForce) { 	// Brute Force intrusion
 			// Log the event initialisation
-			log += hacker.getName() + " is attempting a Brute Force Intrusion\n";
+			log.add(hacker.getName() + " is attempting a Brute Force Intrusion");
 			// Perform the opposed test
 			success = test.opposedTest(hacker.getInfosec() + BF_MOD, target.getFirewall());
 			
-			log += "Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD) + "\n" ;
-			log += test.getAttOutcome() + "\n";
-			log += "Target rolled: " + test.getDefRoll() + "/" + target.getFirewall() + "\n";
-			log += test.getDefOutcome() + "\n";
+			log.add("Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD));
+			log.add(test.getAttOutcome());
+			log.add("Target rolled: " + test.getDefRoll() + "/" + target.getFirewall());
+			log.add(test.getDefOutcome());
 			
 			// The attacker has won the opposed check
 			if (success) {
@@ -128,13 +135,13 @@ public class Hacking implements Observable{
 			return success;
 			
 		} else { 			// Subtle Intrusion
-			log += hacker.getName() + " is attempting a Subtle Intrusion\n";
+			log.add(hacker.getName() + " is attempting a Subtle Intrusion");
 			success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
 			// Construct log message
-			log += "Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec()) + "\n" ;
-			log += test.getAttOutcome() + "\n";
-			log += "Target rolled: " + test.getDefRoll() + "/" + target.getFirewall() + "\n";
-			log += test.getDefOutcome() + "\n";
+			log.add("Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec()));
+			log.add(test.getAttOutcome());
+			log.add("Target rolled: " + test.getDefRoll() + "/" + target.getFirewall());
+			log.add(test.getDefOutcome());
 			
 			if (success) {
 				intruder = checkSubtleIntrusionSuccess(test);
@@ -144,7 +151,7 @@ public class Hacking implements Observable{
 				// System goes on passive alert
 				if (target.getAlert() == Alerts.NONE) {
 					target.setAlert(Alerts.PASSIVE);
-					log += Alerts.PASSIVE.toString() + " Alert triggered";
+					log.add(Alerts.PASSIVE.toString() + " Alert triggered");
 				}
 			}
 			notifyObservers(log);
@@ -201,11 +208,11 @@ public class Hacking implements Observable{
 		target.setAlert(alert);
 		
 		// Log Alerts triggered
-		log += alert.toString() + " Alert triggered.";
+		log.add(alert.toString() + " Alert triggered.");
 		// Log privileges gained
-		log += priv.toString() + " Privileges aquired.";
+		log.add(priv.toString() + " Privileges aquired.");
 		// Log Intruder Status
-		log += status.toString() + " Status aquired.\n";
+		log.add(status.toString() + " Status aquired.");;
 		
 		return intruder;
 	}
@@ -226,8 +233,8 @@ public class Hacking implements Observable{
 							  .setDur(hacker.getDurability())
 							  .build();
 		target.setAlert(Alerts.ACTIVE);
-		log += "Active Alert triggered!\n";
-		log += hacker.getName() +" has been Spotted by " + target.getName();
+		log.add("Active Alert triggered!");
+		log.add(hacker.getName() + " has been Spotted by " + target.getName());
 		return intruder;
 	}
 
@@ -278,11 +285,11 @@ public class Hacking implements Observable{
 		target.setAlert(alert);
 		
 		// Log Alerts triggered
-		log += alert.toString() + " Alert triggered.";
+		log.add(alert.toString() + " Alert triggered.");
 		// Log privileges gained
-		log += priv.toString() + " Privileges aquired.";
+		log.add(priv.toString() + " Privileges aquired.");
 		// Log Intruder Status
-		log += status.toString() + " Status aquired.\n";
+		log.add(status.toString() + " Status aquired.");
 		
 		return intruder;
 	}
@@ -380,11 +387,11 @@ public class Hacking implements Observable{
 	}
 
 	@Override
-	public void notifyObservers(String event) {
+	public void notifyObservers(Event event) {
 		for (Observer o : observers) {
 			o.update(event);
 		}
-		log = "";
+		log.clear();
 	}
 
 }

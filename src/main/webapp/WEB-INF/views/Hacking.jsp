@@ -5,6 +5,9 @@
     import="hackingtool.devices.User"
     import="hackingtool.devices.Account"
     import="hackingtool.dice.Tests"
+    import="hackingtool.logging.Event"
+    import="java.util.Deque"
+    import="java.util.ArrayDeque"
   %>
 <!DOCTYPE html>
 <html>
@@ -14,7 +17,7 @@
 		final Hackable target = (Hackable) request.getAttribute("target");
 		final Account account = target.getAccount(hacker);
 		final Tests test 	  = (Tests) request.getAttribute("test");
-		final String log	  = (String) request.getAttribute("log");
+		final Deque<Event> eventLog = (ArrayDeque<Event>) request.getAttribute("eventLog");
 	%>
 <head>
 	<meta charset="UTF-8">
@@ -82,11 +85,12 @@
 	<!-- Show roll details -->
 	<!-- should create some kind of log of actions -->
 	<% 	
-	if (log != null){
+	if (eventLog != null){
+		for (Event event : eventLog) {
 	%>
-		<p><%= log %> </p>
-</p>
-	<%		
+			<p><%= event %> </p>
+	<%	
+		}		
 	}
 	%>
 </body>

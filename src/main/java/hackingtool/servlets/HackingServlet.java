@@ -12,7 +12,8 @@ import hackingtool.devices.Device;
 import hackingtool.devices.OS;
 import hackingtool.devices.User;
 import hackingtool.hacking.Hacking;
-import hackingtool.hacking.Observer;
+import hackingtool.logging.Logger;
+import hackingtool.logging.Observer;
 
 /**
  * Servlet implementation class HackingServlet
@@ -49,7 +50,7 @@ public class HackingServlet extends HttpServlet {
      */
     public HackingServlet() {
         super();
-        hack.addObserver(logger);
+        logger = new Logger();
     }
 // 
 	/**
@@ -58,10 +59,10 @@ public class HackingServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//String action;
 		if (hack != null) {
-			request.setAttribute("test",   hack.getTest());
-			request.setAttribute("target", hack.getTarget());
-			request.setAttribute("hacker", hack.getHacker());
-			request.setAttribute("log", hack.getLog());
+			request.setAttribute("test",   	 hack.getTest());
+			request.setAttribute("target", 	 hack.getTarget());
+			request.setAttribute("hacker", 	 hack.getHacker());
+			request.setAttribute("eventLog", logger.getEventLog());
 		} else {
 			request.setAttribute("target", target);
 			request.setAttribute("hacker", hacker);
@@ -90,6 +91,7 @@ public class HackingServlet extends HttpServlet {
 		// Check action
 		if (action != null && !action.isEmpty()) {
 			hack = new Hacking(target, hacker, bruteForce);
+	        hack.addObserver(logger);
 			if (INTRUSION.equalsIgnoreCase(action)) {
 				hack.intrusion();
 			} else if (IMPROVE_STATUS.equalsIgnoreCase(action)) {
