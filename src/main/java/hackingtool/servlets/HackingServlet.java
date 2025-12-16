@@ -12,6 +12,7 @@ import hackingtool.devices.Device;
 import hackingtool.devices.OS;
 import hackingtool.devices.User;
 import hackingtool.hacking.Hacking;
+import hackingtool.hacking.Observer;
 
 /**
  * Servlet implementation class HackingServlet
@@ -37,14 +38,18 @@ public class HackingServlet extends HttpServlet {
 												   .build();
 	// Create example user for testing
 	private static final User hacker = new User("TestUser", 75, 75, 10);
+	
+	// Fields
+	private Observer logger;
 	private Hacking hack;
+	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public HackingServlet() {
         super();
-        // TODO Auto-generated constructor stub
+        hack.addObserver(logger);
     }
 // 
 	/**
@@ -56,11 +61,12 @@ public class HackingServlet extends HttpServlet {
 			request.setAttribute("test",   hack.getTest());
 			request.setAttribute("target", hack.getTarget());
 			request.setAttribute("hacker", hack.getHacker());
+			request.setAttribute("log", hack.getLog());
 		} else {
 			request.setAttribute("target", target);
 			request.setAttribute("hacker", hacker);
 		}
-
+		
 		request.getRequestDispatcher(HACKING_JSP)
 				.forward(request, response);
 	}

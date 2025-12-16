@@ -105,8 +105,12 @@ public class Hacking implements Observable{
 			log += hacker.getName() + " is attempting a Brute Force Intrusion\n";
 			// Perform the opposed test
 			success = test.opposedTest(hacker.getInfosec() + BF_MOD, target.getFirewall());
+			
 			log += "Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD) + "\n" ;
+			log += test.getAttOutcome() + "\n";
 			log += "Target rolled: " + test.getDefRoll() + "/" + target.getFirewall() + "\n";
+			log += test.getDefOutcome() + "\n";
+			
 			// The attacker has won the opposed check
 			if (success) {
 				intruder = checkBFIntrusionSuccess(test);
@@ -124,7 +128,13 @@ public class Hacking implements Observable{
 			return success;
 			
 		} else { 			// Subtle Intrusion
+			log += hacker.getName() + " is attempting a Subtle Intrusion\n";
 			success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
+			// Construct log message
+			log += "Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec()) + "\n" ;
+			log += test.getAttOutcome() + "\n";
+			log += "Target rolled: " + test.getDefRoll() + "/" + target.getFirewall() + "\n";
+			log += test.getDefOutcome() + "\n";
 			
 			if (success) {
 				intruder = checkSubtleIntrusionSuccess(test);
@@ -134,41 +144,38 @@ public class Hacking implements Observable{
 				// System goes on passive alert
 				if (target.getAlert() == Alerts.NONE) {
 					target.setAlert(Alerts.PASSIVE);
+					log += Alerts.PASSIVE.toString() + " Alert triggered";
 				}
 			}
-			
+			notifyObservers(log);
 			return success;
 		}
 	}
 
 	private Account checkSubtleIntrusionSuccess(Tests hack) {
 		Account intruder;
+		Alerts 		   alert;
+		IntruderStatus status;
+		Privileges     priv;;
 		String attOutcome = hack.getAttOutcome();
 		// Check success to determine Intruder Status
 		if (CRIT_SUCC.equalsIgnoreCase(attOutcome)) {
 			// Hidden status
-			intruder = new Account.Builder()
-								  .setUser(hacker)
-								  .setStatus(IntruderStatus.HIDDEN)
-								  .build();
+			status = IntruderStatus.HIDDEN;
 		} else { // Normal success
 			// covert status
-			intruder = new Account.Builder()
-								  .setUser(hacker)
-								  .setStatus(IntruderStatus.COVERT)
-								  .setDur(hacker.getDurability())
-								  .build();
+			status = IntruderStatus.COVERT;
 		}
 		// Check the degree of success to determine privileges
 		if (DUB_SUP_SUCC.equalsIgnoreCase(attOutcome)) {
 			// Admin privileges
-			intruder.setPriv(Privileges.ADMIN);
+			priv = Privileges.ADMIN;
 		} else if (SUP_SUCC.equalsIgnoreCase(attOutcome)) {
 			// Security privileges
-			intruder.setPriv(Privileges.SECURITY);
+			priv = Privileges.SECURITY;
 		} else { // Normal success
 			// User privileges
-			intruder.setPriv(Privileges.USER);
+			priv = Privileges.USER;
 		}
 		// Check target's results to determine Alert Status
 		String defOutcome = hack.getDefOutcome();
@@ -176,9 +183,30 @@ public class Hacking implements Observable{
 		||	SUP_SUCC.equalsIgnoreCase(defOutcome)
 		||	DUB_SUP_SUCC.equalsIgnoreCase(defOutcome) ) {
 			if (target.getAlert() == Alerts.NONE) {
-				target.setAlert(Alerts.PASSIVE);
+				alert = Alerts.PASSIVE;
+			} else {
+				alert = target.getAlert();
 			}
+		} else {
+			alert = target.getAlert();
 		}
+		
+		intruder = new Account.Builder()
+				  .setUser(hacker)
+				  .setStatus(status)
+				  .setPriv(priv)
+				  .setDur(hacker.getDurability())
+				  .build();
+		
+		target.setAlert(alert);
+		
+		// Log Alerts triggered
+		log += alert.toString() + " Alert triggered.";
+		// Log privileges gained
+		log += priv.toString() + " Privileges aquired.";
+		// Log Intruder Status
+		log += status.toString() + " Status aquired.\n";
+		
 		return intruder;
 	}
 
@@ -198,9 +226,8 @@ public class Hacking implements Observable{
 							  .setDur(hacker.getDurability())
 							  .build();
 		target.setAlert(Alerts.ACTIVE);
-		log += "Failure!\n";
 		log += "Active Alert triggered!\n";
-		log += hacker.getName() +" has been spotted by " + target.getName();
+		log += hacker.getName() +" has been Spotted by " + target.getName();
 		return intruder;
 	}
 
@@ -214,52 +241,49 @@ public class Hacking implements Observable{
 	 */
 	private Account checkBFIntrusionSuccess(Tests hack) {
 		Account intruder;
+		Alerts 		   alert;
+		IntruderStatus status;
+		Privileges     priv;
 		// Check for criticals
 		if (CRIT_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 			// critical success: 
 			// covert status
 			// Passive alert triggered
-			log += "Passive Alert triggered.\n";
-			log += "Critical success: Covert status.\n";
-			// Create the new account
-			intruder = new Account.Builder()
-								  .setUser(hacker)
-								  .setStatus(IntruderStatus.COVERT)
-								  .setDur(hacker.getDurability())
-								  .build();
-
-			// Set the target to Passive alert
-			target.setAlert(Alerts.PASSIVE);
+			alert = Alerts.PASSIVE;
+			status = IntruderStatus.COVERT;
 		} else {
 			// Normal success:
 			// spotted status, active alert
-			log += "Active Alert triggered!\n";
-			log += "Success: Spotted status\n";
-			// Create the new account
-			intruder = new Account.Builder()
-								  .setUser(hacker)
-								  .setStatus(IntruderStatus.SPOTTED)
-								  .setDur(hacker.getDurability())
-								  .build();
-			// Set the target to Active alert
-			target.setAlert(Alerts.ACTIVE);
-			
+			alert = Alerts.ACTIVE;
+			status = IntruderStatus.SPOTTED;
 		}
 		// Check the degree of success to determine privileges
 		if (DUB_SUP_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 			// Gain admin privileges
-			intruder.setPriv(Privileges.ADMIN);
-			log += "Double Superior Success: Admin privileges gained.\n";
+			priv = Privileges.ADMIN;
 		} else if (SUP_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 			// Gain security privileges
-			intruder.setPriv(Privileges.SECURITY);
-			log += "Superior Success: Security privileges gained.\n";
-		}else {
-			// Not a superior success
+			priv = Privileges.SECURITY;
+		}else { // Not a superior success
 			// gain user privileges
-			intruder.setPriv(Privileges.USER);
-			log += "Success: User privileges gained.\n";
+			priv = Privileges.USER;
 		}
+		
+		intruder = new Account.Builder()
+							  .setUser(hacker)
+							  .setStatus(status)
+							  .setPriv(priv)
+							  .setDur(hacker.getDurability())
+							  .build();
+		target.setAlert(alert);
+		
+		// Log Alerts triggered
+		log += alert.toString() + " Alert triggered.";
+		// Log privileges gained
+		log += priv.toString() + " Privileges aquired.";
+		// Log Intruder Status
+		log += status.toString() + " Status aquired.\n";
+		
 		return intruder;
 	}
 	// End of Intrusion Logic

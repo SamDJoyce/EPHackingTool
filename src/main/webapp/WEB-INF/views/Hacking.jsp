@@ -14,6 +14,7 @@
 		final Hackable target = (Hackable) request.getAttribute("target");
 		final Account account = target.getAccount(hacker);
 		final Tests test 	  = (Tests) request.getAttribute("test");
+		final String log	  = (String) request.getAttribute("log");
 	%>
 <head>
 	<meta charset="UTF-8">
@@ -81,13 +82,10 @@
 	<!-- Show roll details -->
 	<!-- should create some kind of log of actions -->
 	<% 	
-	if (test != null){
+	if (log != null){
 	%>
-		<p> Attacker rolled: <%= test.getAttRoll() %> </p>
-		<p><%= test.getAttOutcome() %></p>
-		<br>
-		<p>Defender rolled: <%= test.getDefRoll() %></p>
-		<p><%= test.getDefOutcome() %></p>
+		<p><%= log %> </p>
+</p>
 	<%		
 	}
 	%>
