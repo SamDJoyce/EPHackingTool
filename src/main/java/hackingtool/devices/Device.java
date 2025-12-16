@@ -1,7 +1,5 @@
 package hackingtool.devices;
 
-import hackingtool.hacking.Alerts;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -160,6 +158,10 @@ public class Device implements Hackable{
     
     public int getAlertLevel() {
     	return alert.getLevel();
+    }
+    
+    public String getAlertString() {
+    	return Alerts.toString(alert);
     }
     
     public void increaseAlert() {

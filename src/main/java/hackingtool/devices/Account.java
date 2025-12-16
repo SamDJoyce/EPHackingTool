@@ -1,8 +1,5 @@
 package hackingtool.devices;
 
-import hackingtool.hacking.IntruderStatus;
-import hackingtool.hacking.Privileges;
-
 /**
  * An Account is a container for a user's system privileges
  * intruder status and other important metadata

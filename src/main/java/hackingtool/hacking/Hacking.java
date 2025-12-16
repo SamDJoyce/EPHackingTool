@@ -1,11 +1,17 @@
 package hackingtool.hacking;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hackingtool.devices.Account;
+import hackingtool.devices.Alerts;
 import hackingtool.devices.Hackable;
+import hackingtool.devices.IntruderStatus;
+import hackingtool.devices.Privileges;
 import hackingtool.devices.User;
 import hackingtool.dice.Tests;
 // test
-public class Hacking {
+public class Hacking implements Observable{
 	private static final int 	BF_MOD		  = -30;
 	private static final int    HIDDEN_MOD	  = 10;
 	private static final int ACTIVE_ALERT_MOD = -10;
@@ -23,7 +29,8 @@ public class Hacking {
 	private Hackable target;
 	private User     hacker;
 	private Boolean  bruteForce;
-	
+	private String   log;
+	private List<Observer> observers;
 
 
 	// ----- Constructor ----- \\
@@ -31,6 +38,8 @@ public class Hacking {
 		this.target = target;
 		this.hacker = hacker;
 		this.bruteForce = bruteForce;
+		this.observers = new ArrayList<>();
+		this.log = "";
 	}
 	
 	// ----- getters/setters ----- \\
@@ -72,6 +81,10 @@ public class Hacking {
 		this.bruteForce = bruteForce;
 	}
 	
+	public String getLog() {
+		return log;
+	}
+	
 	// ----- Methods ----- \\
 	
 	// Intrusion Logic
@@ -88,9 +101,12 @@ public class Hacking {
 		Account intruder;
 		
 		if (bruteForce) { 	// Brute Force intrusion
+			// Log the event initialisation
+			log += hacker.getName() + " is attempting a Brute Force Intrusion\n";
 			// Perform the opposed test
-			success = test.opposedTest(hacker.getInfosec() - BF_MOD, target.getFirewall());
-			
+			success = test.opposedTest(hacker.getInfosec() + BF_MOD, target.getFirewall());
+			log += "Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD) + "\n" ;
+			log += "Target rolled: " + test.getDefRoll() + "/" + target.getFirewall() + "\n";
 			// The attacker has won the opposed check
 			if (success) {
 				intruder = checkBFIntrusionSuccess(test);
@@ -104,6 +120,7 @@ public class Hacking {
 			}
 			// Register the new account
 			target.addAccount(intruder);
+			notifyObservers(log);
 			return success;
 			
 		} else { 			// Subtle Intrusion
@@ -181,6 +198,9 @@ public class Hacking {
 							  .setDur(hacker.getDurability())
 							  .build();
 		target.setAlert(Alerts.ACTIVE);
+		log += "Failure!\n";
+		log += "Active Alert triggered!\n";
+		log += hacker.getName() +" has been spotted by " + target.getName();
 		return intruder;
 	}
 
@@ -199,7 +219,8 @@ public class Hacking {
 			// critical success: 
 			// covert status
 			// Passive alert triggered
-			
+			log += "Passive Alert triggered.\n";
+			log += "Critical success: Covert status.\n";
 			// Create the new account
 			intruder = new Account.Builder()
 								  .setUser(hacker)
@@ -212,7 +233,8 @@ public class Hacking {
 		} else {
 			// Normal success:
 			// spotted status, active alert
-			
+			log += "Active Alert triggered!\n";
+			log += "Success: Spotted status\n";
 			// Create the new account
 			intruder = new Account.Builder()
 								  .setUser(hacker)
@@ -221,18 +243,22 @@ public class Hacking {
 								  .build();
 			// Set the target to Active alert
 			target.setAlert(Alerts.ACTIVE);
+			
 		}
 		// Check the degree of success to determine privileges
 		if (DUB_SUP_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 			// Gain admin privileges
 			intruder.setPriv(Privileges.ADMIN);
+			log += "Double Superior Success: Admin privileges gained.\n";
 		} else if (SUP_SUCC.equalsIgnoreCase(hack.getAttOutcome())) {
 			// Gain security privileges
 			intruder.setPriv(Privileges.SECURITY);
+			log += "Superior Success: Security privileges gained.\n";
 		}else {
 			// Not a superior success
 			// gain user privileges
 			intruder.setPriv(Privileges.USER);
+			log += "Success: User privileges gained.\n";
 		}
 		return intruder;
 	}
@@ -240,15 +266,15 @@ public class Hacking {
 	
 	// Upgrade Status
 	public void upgradeStatus() {
-		//Tests upgrade = new Tests();
-		Boolean success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
+		
 		String attOutcome = test.getAttOutcome();
 		Account a = null;
-			
 		if (target.getAccount(hacker) != null) {
 				a = target.getAccount(hacker);
 		}
+		int     modifier = applyModifiers(a);
 		
+		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
 		if (success) {
 			// Superior success - upgrade status two levels
 			if (SUP_SUCC.equalsIgnoreCase(attOutcome)
@@ -265,11 +291,10 @@ public class Hacking {
 	
 	// System Subversion
 	public Boolean subvertSystem() {
-		Tests   subvert = new Tests();
 		Account a = target.getAccount(hacker);
 		int     modifier = applyModifiers(a);
-		Boolean success = subvert.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
-		String  attOutcome = subvert.getAttOutcome();
+		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
+		String  attOutcome = test.getAttOutcome();
 		
 		if (!success) { // Failure
 			checkExposure(attOutcome,a);
@@ -317,6 +342,25 @@ public class Hacking {
 				target.setAlert(Alerts.PASSIVE);
 			}	
 		}
+	}
+
+	@Override
+	public void addObserver(Observer observer) {
+		observers.add(observer);
+		
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		observers.remove(observer);
+	}
+
+	@Override
+	public void notifyObservers(String event) {
+		for (Observer o : observers) {
+			o.update(event);
+		}
+		log = "";
 	}
 
 }

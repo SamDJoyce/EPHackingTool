@@ -7,11 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import hackingtool.devices.Alerts;
 import hackingtool.devices.Device;
-import hackingtool.devices.Hackable;
 import hackingtool.devices.OS;
 import hackingtool.devices.User;
-import hackingtool.hacking.Alerts;
 import hackingtool.hacking.Hacking;
 
 /**
@@ -52,7 +51,7 @@ public class HackingServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String action;
+		//String action;
 		if (hack != null) {
 			request.setAttribute("test",   hack.getTest());
 			request.setAttribute("target", hack.getTarget());
@@ -83,14 +82,15 @@ public class HackingServlet extends HttpServlet {
 			bruteForce = Boolean.valueOf(bruteForceParam);
 		}
 		// Check action
-		if (INTRUSION.equalsIgnoreCase(action)) {
-			// do the intrusion
+		if (action != null && !action.isEmpty()) {
 			hack = new Hacking(target, hacker, bruteForce);
-			hack.intrusion();
-		} else if (IMPROVE_STATUS.equalsIgnoreCase(action)) {
-			//TODO
-		} else if (SUBVERSION.equalsIgnoreCase(action)) {
-			//TODO
+			if (INTRUSION.equalsIgnoreCase(action)) {
+				hack.intrusion();
+			} else if (IMPROVE_STATUS.equalsIgnoreCase(action)) {
+				hack.upgradeStatus();
+			} else if (SUBVERSION.equalsIgnoreCase(action)) {
+				hack.subvertSystem();
+			}
 		}
 		doGet(request,response);
 	}

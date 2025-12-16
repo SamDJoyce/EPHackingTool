@@ -33,7 +33,7 @@
 				<td><%= target.getName() %></td>
 				<td><%= target.getFirewall() %></td>
 				<td><%= target.getInfosec() %></td>
-				<td><%= target.getAlert() %></td>
+				<td><%= target.getAlertString() %></td>
 			</tr>			
 		</table>
 		<!-- Action buttons -->
@@ -54,8 +54,8 @@
 			</form>
 			<!-- Subversion -->
 			<form method='post' action='Hacking'>
-				<input type='hidden' name='action'value='subversion'>
-				<input type='submit' value='Subvert System'>
+				<input type='hidden' name='action' value='subversion'>
+				<input type='submit' value='SubvertSystem'>
 			</form>
 		<%		
 		}

@@ -1,4 +1,4 @@
-package hackingtool.hacking;
+package hackingtool.devices;
 
 public enum Privileges {
 	PUBLIC(0),

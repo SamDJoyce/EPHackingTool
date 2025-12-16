@@ -2,8 +2,6 @@ package hackingtool.devices;
 
 import java.util.List;
 
-import hackingtool.hacking.Alerts;
-
 public interface Hackable {
 	String getName();
 	void setName(String name);
@@ -27,6 +25,7 @@ public interface Hackable {
 	void setAlertLevel(int level);
 	Alerts getAlert();
 	int getAlertLevel();
+	String getAlertString();
 	void increaseAlert();
 	void reduceAlert();
 	boolean isMindware();
