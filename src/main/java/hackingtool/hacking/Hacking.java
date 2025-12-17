@@ -15,17 +15,34 @@ import hackingtool.logging.Observer;
 import hackingtool.logging.Event;
 // test
 public class Hacking implements Observable{
-	private static final int 	BF_MOD		  = -30;
-	private static final int    HIDDEN_MOD	  = 10;
-	private static final int ACTIVE_ALERT_MOD = -10;
-	private static final int    MINDWARE_MOD  = -30;
-	private static final String SUP_SUCC 	  = "Superior Success";
-	private static final String DUB_SUP_SUCC  = "Double Superior Success";
-	private static final String CRIT_SUCC 	  = "Critical Success";
-	private static final String SUCCESS		  = "Success";
-	private static final String CRIT_FAIL 	  = "Critical Failure";
-	private static final String SUP_FAIL 	  = "Superior Failure";
-	private static final String DUB_SUP_FAIL  = "Double Superior Failure";
+	
+	private static final int 	BF_MOD		   = -30;
+	private static final int    HIDDEN_MOD	   = 10;
+	private static final int    MINDWARE_MOD   = -30;
+	private static final int ACTIVE_ALERT_MOD  = -10;
+	
+	private static final String SUP_SUCC 	   = "Superior Success";
+	private static final String DUB_SUP_SUCC   = "Double Superior Success";
+	private static final String CRIT_SUCC 	   = "Critical Success";
+	private static final String SUCCESS		   = "Success";
+	private static final String CRIT_FAIL 	   = "Critical Failure";
+	private static final String SUP_FAIL 	   = "Superior Failure";
+	private static final String DUB_SUP_FAIL   = "Double Superior Failure";
+	
+	private static final String FAILED    	   = " Failed";
+	private static final String SUCCEEDED 	   = " Succeeded";
+	private static final String TARGET_ROLLED  = "Target rolled: ";
+	private static final String HACKER_ROLLED  = "Hacker rolled: ";
+	private static final String STATUS_AQUIRED = " Status aquired.";
+	private static final String EXPOSED 	   = "Exposed! ";
+	private static final String SPOTTED_BY 	   = " has been Spotted by ";
+	private static final String ATTEMPTING_TO_IMPROVE = " is attempting to improve their intruder status.";
+	private static final String STATUS_IMPROVED 	  = "Status improved to ";
+	private static final String ATTEMPTING_TO_SUBVERT = " is attempting to subvert ";
+	private static final String PRIVILEGES_AQUIRED 	  = " Privileges aquired.";
+	private static final String ALERT_TRIGGERED    	  = " Alert triggered.";
+	private static final String ATTEMPTING_BF_INTRUSION     = " is attempting a Brute Force Intrusion";
+	private static final String ATTEMPTING_SUBTLE_INTRUSION = " is attempting a Subtle Intrusion";
 	
 	private final Tests test = new Tests();
 
@@ -108,15 +125,14 @@ public class Hacking implements Observable{
 		Account intruder;
 		
 		if (bruteForce) { 	// Brute Force intrusion
-			// Log the event initialisation
-			log.add(hacker.getName() + " is attempting a Brute Force Intrusion");
+
 			// Perform the opposed test
 			success = test.opposedTest(hacker.getInfosec() + BF_MOD, target.getFirewall());
-			
-			log.add("Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD));
-			log.add(test.getAttOutcome());
-			log.add("Target rolled: " + test.getDefRoll() + "/" + target.getFirewall());
-			log.add(test.getDefOutcome());
+			// Log the event
+			log.add(hacker.getName() + ATTEMPTING_BF_INTRUSION);
+			log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD) + " - " + test.getAttOutcome());
+			log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall() + " - " + test.getDefOutcome());
+			log.add(hacker.getName() + (success ? SUCCEEDED : FAILED) + " in creating an account.");
 			
 			// The attacker has won the opposed check
 			if (success) {
@@ -124,9 +140,7 @@ public class Hacking implements Observable{
 				
 			} else {
 				// Failure
-				// Spotted Status
-				// Active Alert
-				// Public account
+				// Spotted Status, Active Alert, Public account
 				intruder = bfIntrusionFailure();
 			}
 			// Register the new account
@@ -135,13 +149,12 @@ public class Hacking implements Observable{
 			return success;
 			
 		} else { 			// Subtle Intrusion
-			log.add(hacker.getName() + " is attempting a Subtle Intrusion");
 			success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
 			// Construct log message
-			log.add("Hacker rolled: " + test.getAttRoll() + "/" + (hacker.getInfosec()));
-			log.add(test.getAttOutcome());
-			log.add("Target rolled: " + test.getDefRoll() + "/" + target.getFirewall());
-			log.add(test.getDefOutcome());
+			log.add(hacker.getName() + ATTEMPTING_SUBTLE_INTRUSION);
+			log.add(HACKER_ROLLED + test.getAttRoll() + "/" + hacker.getInfosec() + " - " + test.getAttOutcome());
+			log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall() + " - " + test.getDefOutcome());
+			log.add(hacker.getName() + (success ? SUCCEEDED : FAILED) + " in creating an account.");
 			
 			if (success) {
 				intruder = checkSubtleIntrusionSuccess(test);
@@ -151,7 +164,7 @@ public class Hacking implements Observable{
 				// System goes on passive alert
 				if (target.getAlert() == Alerts.NONE) {
 					target.setAlert(Alerts.PASSIVE);
-					log.add(Alerts.PASSIVE.toString() + " Alert triggered");
+					log.add(Alerts.PASSIVE.toString() + ALERT_TRIGGERED);
 				}
 			}
 			notifyObservers(log);
@@ -208,11 +221,11 @@ public class Hacking implements Observable{
 		target.setAlert(alert);
 		
 		// Log Alerts triggered
-		log.add(alert.toString() + " Alert triggered.");
+		log.add(alert.toString() + ALERT_TRIGGERED);
 		// Log privileges gained
-		log.add(priv.toString() + " Privileges aquired.");
+		log.add(priv.toString() + PRIVILEGES_AQUIRED);
 		// Log Intruder Status
-		log.add(status.toString() + " Status aquired.");;
+		log.add(status.toString() + STATUS_AQUIRED);;
 		
 		return intruder;
 	}
@@ -233,8 +246,8 @@ public class Hacking implements Observable{
 							  .setDur(hacker.getDurability())
 							  .build();
 		target.setAlert(Alerts.ACTIVE);
-		log.add("Active Alert triggered!");
-		log.add(hacker.getName() + " has been Spotted by " + target.getName());
+		log.add(Alerts.ACTIVE.toString() + ALERT_TRIGGERED);
+		log.add(hacker.getName() + SPOTTED_BY + target.getName());
 		return intruder;
 	}
 
@@ -247,7 +260,7 @@ public class Hacking implements Observable{
 	 * 				based on their hack test outcome
 	 */
 	private Account checkBFIntrusionSuccess(Tests hack) {
-		Account intruder;
+		Account 	   intruder;
 		Alerts 		   alert;
 		IntruderStatus status;
 		Privileges     priv;
@@ -285,11 +298,11 @@ public class Hacking implements Observable{
 		target.setAlert(alert);
 		
 		// Log Alerts triggered
-		log.add(alert.toString() + " Alert triggered.");
+		log.add(alert.toString() + ALERT_TRIGGERED);
 		// Log privileges gained
-		log.add(priv.toString() + " Privileges aquired.");
+		log.add(priv.toString() + PRIVILEGES_AQUIRED);
 		// Log Intruder Status
-		log.add(status.toString() + " Status aquired.");
+		log.add(status.toString() + STATUS_AQUIRED);
 		
 		return intruder;
 	}
@@ -297,8 +310,6 @@ public class Hacking implements Observable{
 	
 	// Upgrade Status
 	public void upgradeStatus() {
-		
-		String attOutcome = test.getAttOutcome();
 		Account a = null;
 		if (target.getAccount(hacker) != null) {
 				a = target.getAccount(hacker);
@@ -306,6 +317,14 @@ public class Hacking implements Observable{
 		int     modifier = applyModifiers(a);
 		
 		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
+		String attOutcome = test.getAttOutcome();
+		
+		// Logging
+		log.add(hacker.getName() + ATTEMPTING_TO_IMPROVE);
+		log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + modifier) + " - " + attOutcome);
+		log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall() + " - " + test.getDefOutcome());
+		log.add(hacker.getName() + (success ? " Succeeded" : " Failed"));
+		
 		if (success) {
 			// Superior success - upgrade status two levels
 			if (SUP_SUCC.equalsIgnoreCase(attOutcome)
@@ -315,9 +334,11 @@ public class Hacking implements Observable{
 			} else { // normal success - upgrade status one level
 				a.improveStatus();
 			}
+			log.add(STATUS_IMPROVED + a.getStatus().toString());
 		} else { // Failure
 			checkExposure(attOutcome, a);
 		}
+		notifyObservers(log);
 	}
 	
 	// System Subversion
@@ -327,11 +348,17 @@ public class Hacking implements Observable{
 		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
 		String  attOutcome = test.getAttOutcome();
 		
+		// Logging
+		log.add(hacker.getName() + ATTEMPTING_TO_SUBVERT + target.getName());
+		log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + modifier)  + " - " + attOutcome);
+		log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall()  + " - " + test.getDefOutcome());
+		log.add(hacker.getName() + (success ? " Succeeded" : " Failed"));
+		
 		if (!success) { // Failure
 			checkExposure(attOutcome,a);
 		} // On a success the thing happens
 		  // but there are no logical changes
-		
+		notifyObservers(log);
 		return success;
 	}
 
@@ -364,6 +391,8 @@ public class Hacking implements Observable{
 			a.setStatus(IntruderStatus.SPOTTED);
 			// Add the account back into the target
 			target.updateAccount(a);
+			log.add(EXPOSED + Alerts.ACTIVE.toString() + ALERT_TRIGGERED
+					+ " " + IntruderStatus.SPOTTED.toString() + STATUS_AQUIRED);
 		}
 		
 		if(SUP_FAIL.equalsIgnoreCase(attOutcome)
@@ -371,14 +400,17 @@ public class Hacking implements Observable{
 		// Superior failure causes a passive alert	
 			if (target.getAlert() == Alerts.NONE) {
 				target.setAlert(Alerts.PASSIVE);
+				log.add(EXPOSED + Alerts.PASSIVE.toString() + ALERT_TRIGGERED);
 			}	
 		}
 	}
-
+	
+	// Observer methods
 	@Override
 	public void addObserver(Observer observer) {
-		observers.add(observer);
-		
+		if (observer != null) {
+			observers.add(observer);
+		}
 	}
 
 	@Override
@@ -388,10 +420,11 @@ public class Hacking implements Observable{
 
 	@Override
 	public void notifyObservers(Event event) {
+		
 		for (Observer o : observers) {
 			o.update(event);
 		}
-		log.clear();
+		log = new Event();
 	}
 
 }

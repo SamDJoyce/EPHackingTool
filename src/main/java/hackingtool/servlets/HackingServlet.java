@@ -7,9 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import hackingtool.devices.Alerts;
 import hackingtool.devices.Device;
-import hackingtool.devices.OS;
+import hackingtool.devices.DeviceFactory;
 import hackingtool.devices.User;
 import hackingtool.hacking.Hacking;
 import hackingtool.logging.Logger;
@@ -20,25 +19,18 @@ import hackingtool.logging.Observer;
  */
 @WebServlet("/Hacking")
 public class HackingServlet extends HttpServlet {
-	private static final String SUBVERSION = "subversion";
-	private static final String IMPROVE_STATUS = "improveStatus";
-	private static final String HACKING_JSP = "WEB-INF/views/Hacking.jsp";
-	private static final String BRUTE_FORCE = "bruteForce";
-	private static final String ACTION 	  = "action";
-	private static final String INTRUSION = "intrusion";
-
 	private static final long serialVersionUID = 1L;
+	private static final String SUBVERSION     = "subversion";
+	private static final String IMPROVE_STATUS = "improveStatus";
+	private static final String HACKING_JSP    = "WEB-INF/views/Hacking.jsp";
+	private static final String BRUTE_FORCE    = "bruteForce";
+	private static final String ACTION 	  	   = "action";
+	private static final String INTRUSION 	   = "intrusion";
 	
 	// Create example system for testing
-	private static final Device target = new Device.Builder()
-												   .setSystemName("Test System")
-												   .setOS(new OS(10))
-												   .setFirewall(50)
-												   .setInfosec(50)
-												   .setAlert(Alerts.NONE)
-												   .build();
+	private static final Device target = DeviceFactory.createRandom("Mote");
 	// Create example user for testing
-	private static final User hacker = new User("TestUser", 75, 75, 10);
+	private static final User hacker = new User("TestUser", 75, 75, 25);
 	
 	// Fields
 	private Observer logger;

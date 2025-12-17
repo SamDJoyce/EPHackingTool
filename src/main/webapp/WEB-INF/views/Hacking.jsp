@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
-    import="hackingtool.hacking.Hacking"
     import="hackingtool.devices.Hackable"
     import="hackingtool.devices.User"
     import="hackingtool.devices.Account"
@@ -12,7 +11,6 @@
 <!DOCTYPE html>
 <html>
 	<%
-	// TODO assign this properly
 		final User hacker 	  = (User) request.getAttribute("hacker");
 		final Hackable target = (Hackable) request.getAttribute("target");
 		final Account account = target.getAccount(hacker);
@@ -45,6 +43,7 @@
 			<input type='hidden' name='action'value='intrusion'>
 			<input type='checkbox' name='bruteForce' value='true' id='bfCheck'>
 			<label for='bfCheck'>Brute force</label>
+			<br>
 			<input type='submit' value='Perform Intrusion'>
 		</form>
 			<% 	
@@ -82,14 +81,20 @@
 		</table>
 	</div>
 	<br><hr><br>
-	<!-- Show roll details -->
-	<!-- should create some kind of log of actions -->
+	<!-- Show activity logs -->
 	<% 	
 	if (eventLog != null){
+		Deque<String> log;
 		for (Event event : eventLog) {
+			log = event.getLog();
+			for (String message : log){
 	%>
-			<p><%= event %> </p>
+			<p><%= message %> </p>
 	<%	
+			}
+	%>
+			<br>
+	<%
 		}		
 	}
 	%>

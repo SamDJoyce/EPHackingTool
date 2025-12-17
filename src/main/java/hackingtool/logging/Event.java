@@ -23,7 +23,7 @@ public class Event {
 	}
 	
 	public void add(String event) {
-		log.add(event);
+		log.addLast(event);
 	}
 	
 	public void clear() {
