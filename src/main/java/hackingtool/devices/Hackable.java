@@ -28,5 +28,7 @@ public interface Hackable {
 	String getAlertString();
 	void increaseAlert();
 	void reduceAlert();
-	boolean isMindware();
+	Boolean isMindware();
+	Boolean isDefended();
+	OS getOS();
 }

@@ -6,10 +6,9 @@ import java.util.List;
 public class Device implements Hackable{
 
     private String  systemName;
-    private Boolean isMindware;
+    private Boolean mindware;
+    private Boolean defended;
     private OS 	    os;
-	private int     firewall;
-    private int     infosec;
     private Alerts  alert;
     private List<Account> accounts;
     
@@ -22,10 +21,9 @@ public class Device implements Hackable{
     
     public static class Builder {
     	private String systemName;
-    	private Boolean isMindware;
+    	private Boolean mindware;
+    	private Boolean defended;
     	private OS     os;
-        private int    firewall;
-        private int    infosec;
         private Alerts alert;
         private List<Account> accounts;
     	
@@ -34,21 +32,17 @@ public class Device implements Hackable{
 			return this;
 		}
         public Builder setMindware(Boolean isMindware) {
-        	this.isMindware = isMindware;
+        	this.mindware = isMindware;
+        	return this;
+        }
+        public Builder setDefended(Boolean isDefended) {
+        	this.defended = isDefended;
         	return this;
         }
         public Builder setOS(OS os) {
         	this.os = os;
         	return this;
         }
-		public Builder setFirewall(int firewall) {
-			this.firewall = firewall;
-			return this;
-		}
-		public Builder setInfosec(int infosec) {
-			this.infosec = infosec;
-			return this;
-		}
 		public Builder setAlert(Alerts alert) {
 			this.alert = alert;
 			return this;
@@ -63,10 +57,9 @@ public class Device implements Hackable{
 			Device d = new Device();
 			
 			d.systemName = systemName;
-			d.isMindware = (isMindware != null) ? isMindware : false;
+			d.mindware = (mindware != null) ? mindware : false;
+			d.defended   = (defended != null) ? defended : false;
 			d.os		 = os;
-			d.firewall   = firewall;
-			d.infosec    = infosec;
 			d.alert      = (alert != null) ? alert : Alerts.NONE;
 			d.accounts   = (accounts != null) ? accounts : new ArrayList<>() ;
 			
@@ -129,19 +122,19 @@ public class Device implements Hackable{
     }
     
     public void setFirewall(int firewall){
-        this.firewall = firewall;
+        os.setFirewall(firewall);
     }
     
     public int getFirewall(){
-        return firewall;
+        return os.getFirewall();
     }
     
     public void setInfosec(int infosec){
-        this.infosec = infosec;
+        os.setInfosec(infosec);
     }
     
     public int getInfosec(){
-        return infosec;
+        return os.getInfosec();
     }
 
     public void setAlert(Alerts alertLevel){
@@ -178,7 +171,7 @@ public class Device implements Hackable{
     	}
     }
     
-    public OS getOs() {
+    public OS getOS() {
 		return os;
 	}
 
@@ -187,9 +180,15 @@ public class Device implements Hackable{
 	}
 
 	@Override
-	public boolean isMindware() {
-		return isMindware;
+	public Boolean isMindware() {
+		return mindware;
+	}
+
+	@Override
+	public Boolean isDefended() {
+		return defended;
 	}
     
+	
 
 }

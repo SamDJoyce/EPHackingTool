@@ -10,6 +10,7 @@ import hackingtool.devices.IntruderStatus;
 import hackingtool.devices.Privileges;
 import hackingtool.devices.User;
 import hackingtool.dice.Tests;
+import hackingtool.dice.Types;
 import hackingtool.logging.Observable;
 import hackingtool.logging.Observer;
 import hackingtool.logging.Event;
@@ -172,6 +173,73 @@ public class Hacking implements Observable{
 		}
 	}
 
+	// Upgrade Status
+	public void upgradeStatus() {
+		Account a = null;
+		if (target.getAccount(hacker) != null) {
+				a = target.getAccount(hacker);
+		}
+		int     modifier = applyModifiers(a);
+		
+		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
+		String attOutcome = test.getAttOutcome();
+		
+		// Logging
+		log.add(hacker.getName() + ATTEMPTING_TO_IMPROVE);
+		log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + modifier) + " - " + attOutcome);
+		log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall() + " - " + test.getDefOutcome());
+		log.add(hacker.getName() + (success ? " Succeeded" : " Failed"));
+		
+		if (success) {
+			// Superior success - upgrade status two levels
+			if (SUP_SUCC.equalsIgnoreCase(attOutcome)
+			||  DUB_SUP_SUCC.equalsIgnoreCase(attOutcome)) {
+				a.improveStatus();
+				a.improveStatus();
+			} else { // normal success - upgrade status one level
+				a.improveStatus();
+			}
+			log.add(STATUS_IMPROVED + a.getStatus().toString());
+		} else { // Failure
+			checkExposure(attOutcome, a);
+		}
+		notifyObservers(log);
+	}
+	
+	// System Subversion
+	public Boolean subvertSystem() {
+		Account a = target.getAccount(hacker);
+		int     modifier = applyModifiers(a);
+		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
+		String  attOutcome = test.getAttOutcome();
+		
+		// Logging
+		log.add(hacker.getName() + ATTEMPTING_TO_SUBVERT + target.getName());
+		log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + modifier)  + " - " + attOutcome);
+		log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall()  + " - " + test.getDefOutcome());
+		log.add(hacker.getName() + (success ? " Succeeded" : " Failed"));
+		
+		if (!success) { // Failure
+			checkExposure(attOutcome,a);
+		} // On a success the thing happens
+		  // but there are no logical changes
+		notifyObservers(log);
+		return success;
+	}
+	
+	public Boolean meshAttack(Boolean local) {
+		MeshCombat combat = new MeshCombat(hacker, target.getOS(), local);
+		Boolean success = combat.meshAttack();
+		
+		if(success) {
+			//TODO
+		}
+		
+		return success;
+	}
+	
+	// ----- Helper Methods ----- \\
+	
 	private Account checkSubtleIntrusionSuccess(Tests hack) {
 		Account intruder;
 		Alerts 		   alert;
@@ -308,59 +376,7 @@ public class Hacking implements Observable{
 	}
 	// End of Intrusion Logic
 	
-	// Upgrade Status
-	public void upgradeStatus() {
-		Account a = null;
-		if (target.getAccount(hacker) != null) {
-				a = target.getAccount(hacker);
-		}
-		int     modifier = applyModifiers(a);
-		
-		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
-		String attOutcome = test.getAttOutcome();
-		
-		// Logging
-		log.add(hacker.getName() + ATTEMPTING_TO_IMPROVE);
-		log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + modifier) + " - " + attOutcome);
-		log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall() + " - " + test.getDefOutcome());
-		log.add(hacker.getName() + (success ? " Succeeded" : " Failed"));
-		
-		if (success) {
-			// Superior success - upgrade status two levels
-			if (SUP_SUCC.equalsIgnoreCase(attOutcome)
-			||  DUB_SUP_SUCC.equalsIgnoreCase(attOutcome)) {
-				a.improveStatus();
-				a.improveStatus();
-			} else { // normal success - upgrade status one level
-				a.improveStatus();
-			}
-			log.add(STATUS_IMPROVED + a.getStatus().toString());
-		} else { // Failure
-			checkExposure(attOutcome, a);
-		}
-		notifyObservers(log);
-	}
-	
-	// System Subversion
-	public Boolean subvertSystem() {
-		Account a = target.getAccount(hacker);
-		int     modifier = applyModifiers(a);
-		Boolean success = test.opposedTest(hacker.getInfosec() + modifier, target.getFirewall());
-		String  attOutcome = test.getAttOutcome();
-		
-		// Logging
-		log.add(hacker.getName() + ATTEMPTING_TO_SUBVERT + target.getName());
-		log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + modifier)  + " - " + attOutcome);
-		log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall()  + " - " + test.getDefOutcome());
-		log.add(hacker.getName() + (success ? " Succeeded" : " Failed"));
-		
-		if (!success) { // Failure
-			checkExposure(attOutcome,a);
-		} // On a success the thing happens
-		  // but there are no logical changes
-		notifyObservers(log);
-		return success;
-	}
+
 
 	private int applyModifiers(Account a) {
 		int modifier = 0;

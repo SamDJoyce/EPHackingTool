@@ -1,10 +1,16 @@
 package hackingtool.devices;
 
+import hackingtool.dice.Dice;
+import hackingtool.dice.DiceFactory;
+import hackingtool.dice.Tests;
+import hackingtool.dice.Types;
+import hackingtool.hacking.MeshCombatant;
+
 /**
  * An Account is a container for a user's system privileges
  * intruder status and other important metadata
  */
-public class Account {
+public class Account implements MeshCombatant{
 
 	//private static int nextID = 0;
 	private int id;
@@ -14,9 +20,15 @@ public class Account {
     private int woundThresh;
     private int durability;
     private int deathRating;
-
+	private int wounds;
+    private int damage;
+	private int armor;
+	private Boolean defended;
 
     private Account () {
+    	this.wounds = 0;
+    	this.damage = 0;
+    	this.armor  = 0;
     }
 	
 	public static class Builder {
@@ -28,6 +40,7 @@ public class Account {
 	    private int woundThresh;
 	    private int durability;
 	    private int deathRating;
+	    private Boolean defended;
 	    
 	    public Builder setID(int id) {
 	    	this.id = id;
@@ -56,16 +69,22 @@ public class Account {
 	    	return this;
 	    }
 	    
+	    public Builder setDefended(Boolean defended) {
+	    	this.defended = defended;
+	    	return this;
+	    }
+	    
 	    public Account build() {
 	    	Account a = new Account();
 	    	
-	    	a.id = (id == 0 ? ++nextID : id);
+	    	a.id 		  = (id == 0 ? ++nextID : id);
 	    	a.user 		  = user;
 	    	a.status 	  = status;
 	    	a.priv 		  = priv;
 	    	a.durability  = durability;
 	    	a.deathRating = deathRating;
 	    	a.woundThresh = woundThresh;
+	    	a.defended    = (defended != null) ? defended : false;
 	    	
 	    	return a;
 	    }
@@ -139,11 +158,11 @@ public class Account {
 		return user.getName();
 	}
 	
-	public int getUserInfoSec() {
+	public int getInfosec() {
 		return user.getInfosec();
 	}
 	
-	public int getUserFirewall() {
+	public int getFirewall() {
 		return user.getFirewall();
 	}
 	
@@ -163,6 +182,78 @@ public class Account {
 
 	public int getDeathRating() {
 		return deathRating;
+	}
+	
+    public int getWounds() {
+		return wounds;
+	}
+
+	public void setWounds(int wounds) {
+		this.wounds = wounds;
+	}
+
+	public int getDamage() {
+		return damage;
+	}
+
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
+    public int getArmor() {
+		return armor;
+	}
+
+	public void setArmor(int armor) {
+		this.armor = armor;
+	}
+	
+	// MeshCombatant Methods
+	
+	@Override
+	public int meshAttack() {
+		return calcMeshDamage(Types.D10, 2);
+	}
+
+	@Override
+	public int calcMeshDamage(Types type, int num) {
+		int total = 0;
+		Dice dice = DiceFactory.get(type);
+		for (int i = 0; i > num; i++) {
+			total += dice.roll();
+		}
+		return total;
+	}
+
+	@Override
+	public void takeMeshDamage(int damage) {
+		int modDamage = damage - armor;
+		this.damage += modDamage;
+		this.wounds += calcMeshWounds(modDamage);
+		if (this.damage >= durability) {
+			// Unconscious
+		}
+		if (this.damage >= deathRating) {
+			// Dead
+		}	
+	}
+
+	@Override
+	public int calcMeshWounds(int damage) {
+		if (damage >= woundThresh) {
+			return damage/woundThresh;
+		}
+		return 0;
+	}
+
+	@Override
+	public Boolean detectMeshAttack() {
+		Tests test = new Tests();
+		return test.successTest(getInfosec());
+	}
+	
+	@Override
+	public Boolean isDefended() {
+		return defended;
 	}
 
 }

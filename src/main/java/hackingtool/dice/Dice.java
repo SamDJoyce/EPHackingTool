@@ -226,7 +226,13 @@ public class Dice {
      * @return	The value produced by the dice roll
      */
     public int roll () {
-        this.results = (int) (Math.random()*sides);
-        return this.results;
+    	if (this.sides != Types.PERCENTILE.get()) {
+    		this.results = (int) (Math.random()*sides) + 1; // Most Dice start at 1
+    		return this.results;
+    	} else { // Percentile dice run 00 to 99
+    		this.results = (int) (Math.random()*sides);
+    		return this.results;
+    	}
+        
     }
 }
