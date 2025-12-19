@@ -4,7 +4,6 @@ import hackingtool.dice.Dice;
 import hackingtool.dice.DiceFactory;
 import hackingtool.dice.Tests;
 import hackingtool.dice.Types;
-import hackingtool.hacking.MeshCombat;
 import hackingtool.hacking.MeshCombatant;
 
 public class User implements MeshCombatant{
@@ -103,22 +102,23 @@ public class User implements MeshCombatant{
 	// Mesh Combatant methods
 	@Override
 	public int meshAttack() {
-		return calcMeshDamage(Types.D10, 2);
+		int damage = calcMeshDamage(Types.D10, 2);
+		return damage;
 	}
 
 	@Override
 	public int calcMeshDamage(Types type, int num) {
 		int total = 0;
-		Dice dice = DiceFactory.get(type);;
-		for (int i = 0; i > num; i++) {
+		Dice dice = DiceFactory.get(type);
+		for (int i = 0; i < num; i++) {
 			total += dice.roll();
 		}
 		return total;
 	}
 
 	@Override
-	public void takeMeshDamage(int damage) {
-		int modDamage = damage - armor;
+	public int takeMeshDamage(int damage, Boolean isCrit) {
+		int modDamage = (damage * (isCrit ? 2 : 1)) - armor ;
 		this.damage += modDamage;
 		this.wounds += calcMeshWounds(modDamage);
 		if (this.damage >= durability) {
@@ -127,6 +127,7 @@ public class User implements MeshCombatant{
 		if (this.damage >= deathRating) {
 			// Dead
 		}
+		return modDamage;
 	}
 
 	@Override
@@ -147,7 +148,10 @@ public class User implements MeshCombatant{
 	public Boolean isDefended() {
 		return true;
 	}
-
+	@Override
+	public int woundModifier() {
+		return wounds * -10;
+	}
 
 
 }

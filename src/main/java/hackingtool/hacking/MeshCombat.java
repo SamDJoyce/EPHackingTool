@@ -1,19 +1,26 @@
 package hackingtool.hacking;
 
+import hackingtool.devices.Account;
+import hackingtool.devices.Privileges;
 import hackingtool.dice.Tests;
 
-public class MeshCombat {
+public class MeshCombat { // This should probably be observable for log keeping
 
 	// Fields
-	MeshCombatant attacker;
-	MeshCombatant defender;
-	Boolean local;
+	private MeshCombatant attacker;
+	private MeshCombatant defender;
+	private Boolean local;
+	private Boolean opposed;
+	private Tests   test;
+	private int     damage;
 	
 	// Constructor
 	public MeshCombat(MeshCombatant attacker, MeshCombatant defender, Boolean local) {
 		this.attacker = attacker;
 		this.defender = defender;
 		this.local    = local;
+		this.opposed  = false;
+		this.test	  = new Tests();
 	}
 	
 	// Getters/Setters
@@ -41,22 +48,84 @@ public class MeshCombat {
 		this.local = local;
 	}
 	
-	// Methods
-	public Boolean meshAttack() {
-		// TODO
-		Tests test = new Tests();
-		// if attack is remote
-		if (!local) {
-		// - opposed v Firewall, or infosec if defended	
-			if(defender.isDefended()) {
-				//TODO
-			}
-		} else { // if attack is local
-		// - If system is actively defended opposed Infosec v Infosec
-		// - If undefended, Success test v Infosec	
-			//TODO
-		}
-		return null;
+	public Tests getTest() {
+		return this.test;
 	}
-
+	
+	public Boolean isOpposed() {
+		return opposed;
+	}
+	
+	public int getDamage() {
+		return damage;
+	}
+	
+	public int getRoll() {
+		return test.getRoll();
+	}
+	
+	public int getAttRoll() {
+		return test.getAttRoll();
+	}
+	
+	public int getDefRoll() {
+		return test.getDefRoll();
+	}
+	
+	public String getOutcome() {
+		return test.getOutcome();
+	}
+	
+	public String getAttOutcome() {
+		return test.getAttOutcome();
+	}
+	
+	public String getDefOutcome() {
+		return test.getDefOutcome();
+	}
+	
+	public Boolean attCrit() {
+		return test.attCrit();
+	}
+	
+	// ----- Methods ----- \\
+	public Boolean meshAttack(Account account) {
+		Boolean success;
+		// Determine success
+		if (!local) { 	// if attack is remote
+			success = remoteMeshAttack();
+		} else {		// if attack is local
+			success  = localMeshAttack(account);
+		}
+		// Assess damage
+		if (success) {
+			damage = defender.takeMeshDamage(attacker.meshAttack(), test.attCrit());
+		}
+		return success;
+	}
+	
+	private Boolean remoteMeshAttack() {
+		opposed = true;
+		return test.opposedTest(attacker.getInfosec(), defender.isDefended() ? defender.getInfosec() : defender.getFirewall());
+	}
+	
+	private Boolean localMeshAttack(Account account) {
+		int modifier;
+		if (account != null
+		&& Privileges.ADMIN.equals(account.getPriv())) {
+			modifier = 0;
+		} else {
+			modifier = -30;
+		}
+		// If system is actively defended opposed Infosec v Infosec
+		if(defender.isDefended()) {
+			opposed = true;
+			return test.opposedTest(attacker.getInfosec() + modifier, defender.getInfosec());
+		} else { // If undefended, Success test v Infosec
+			opposed = false;
+			return test.successTest(attacker.getInfosec());
+		}
+		
+	}
+	
 }

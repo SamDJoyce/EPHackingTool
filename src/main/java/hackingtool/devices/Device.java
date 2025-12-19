@@ -178,6 +178,18 @@ public class Device implements Hackable{
 	public void setOs(OS os) {
 		this.os = os;
 	}
+	
+	public int getDamage() {
+		return os.getDamage();
+	}
+	
+	public int getWounds() {
+		return os.getWounds();
+	}
+	
+	public int getDurability() {
+		return os.getDurability();
+	}
 
 	@Override
 	public Boolean isMindware() {

@@ -12,6 +12,11 @@ public interface Hackable {
 	void setInfosec(int infosec);
 	int getInfosec();
 	
+	int getDamage();
+	int getWounds();
+	
+	int getDurability();
+	
 	List<Account> getAccounts();
 	Account getAccount(int id);
 	Account getAccount (User user);

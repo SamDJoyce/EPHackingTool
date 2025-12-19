@@ -10,7 +10,6 @@ import hackingtool.devices.IntruderStatus;
 import hackingtool.devices.Privileges;
 import hackingtool.devices.User;
 import hackingtool.dice.Tests;
-import hackingtool.dice.Types;
 import hackingtool.logging.Observable;
 import hackingtool.logging.Observer;
 import hackingtool.logging.Event;
@@ -109,6 +108,8 @@ public class Hacking implements Observable{
 	public void clearLog() {
 		log.clear();
 	}
+	
+	// ----- ^^^ getters/setters ^^^ ----- \\
 	
 	// ----- Methods ----- \\
 	
@@ -228,23 +229,45 @@ public class Hacking implements Observable{
 	}
 	
 	public Boolean meshAttack(Boolean local) {
-		MeshCombat combat = new MeshCombat(hacker, target.getOS(), local);
-		Boolean success = combat.meshAttack();
+		MeshCombat combat   = new MeshCombat(hacker, target.getOS(), local);
+		Boolean    success  = combat.meshAttack(target.getAccount(hacker));
+		Boolean    detected = test.opposedTest(hacker.getInfosec(), target.getFirewall());
 		
-		if(success) {
-			//TODO
+
+		if (detected 
+		&& target.getAlert() != null
+		&& Alerts.NONE.equals(target.getAlert())) {
+			target.setAlert(Alerts.PASSIVE);
 		}
+		
+		// Log events
+		log.add(hacker.getName() + " attacked " + target.getName());
+		if(combat.isOpposed()) { // Opposed check
+			log.add(combat.getAttRoll() + "/" + hacker.getInfosec() + " " + combat.getAttOutcome());
+			log.add(combat.getDefRoll() + "/" + target.getInfosec() + " " + combat.getDefOutcome());
+		} else { // Not opposed
+			log.add(combat.getRoll() + "/" + hacker.getInfosec() + " " + combat.getOutcome());
+		}
+		if (success) {
+			log.add(hacker.getName() + " inflicted " + combat.getDamage() + "DV on " + target.getName());
+		}
+		log.add(hacker.getName() + " was " + (detected ? "" : "not ") + "detected" );
+		if (detected) {
+			log.add(Alerts.PASSIVE + ALERT_TRIGGERED);
+		}
+		notifyObservers(log);
 		
 		return success;
 	}
+	// ----- ^^^ Public Methods ^^^ ----- \\
 	
 	// ----- Helper Methods ----- \\
 	
 	private Account checkSubtleIntrusionSuccess(Tests hack) {
-		Account intruder;
+		Account 	   intruder;
 		Alerts 		   alert;
 		IntruderStatus status;
-		Privileges     priv;;
+		Privileges     priv;
 		String attOutcome = hack.getAttOutcome();
 		// Check success to determine Intruder Status
 		if (CRIT_SUCC.equalsIgnoreCase(attOutcome)) {
@@ -420,6 +443,8 @@ public class Hacking implements Observable{
 			}	
 		}
 	}
+	
+	// ----- ^^^ Helper Methods ^^^ ----- \\
 	
 	// Observer methods
 	@Override

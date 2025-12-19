@@ -24,11 +24,15 @@ public class Account implements MeshCombatant{
     private int damage;
 	private int armor;
 	private Boolean defended;
+	private Types   dmgDice;
+	private int     numDmgDice;
 
     private Account () {
     	this.wounds = 0;
     	this.damage = 0;
     	this.armor  = 0;
+    	this.dmgDice = Types.D10;
+    	this.numDmgDice = 2;
     }
 	
 	public static class Builder {
@@ -41,6 +45,8 @@ public class Account implements MeshCombatant{
 	    private int durability;
 	    private int deathRating;
 	    private Boolean defended;
+		private Types   dmgDice;
+		private int     numDmgDice;
 	    
 	    public Builder setID(int id) {
 	    	this.id = id;
@@ -74,6 +80,16 @@ public class Account implements MeshCombatant{
 	    	return this;
 	    }
 	    
+	    public Builder setDmgDice(Types dice) {
+	    	this.dmgDice = dice;
+	    	return this;
+	    }
+	    
+	    public Builder setNumDmgDice(int num) {
+	    	this.numDmgDice = num;
+	    	return this;
+	    }
+	    
 	    public Account build() {
 	    	Account a = new Account();
 	    	
@@ -84,6 +100,8 @@ public class Account implements MeshCombatant{
 	    	a.durability  = durability;
 	    	a.deathRating = deathRating;
 	    	a.woundThresh = woundThresh;
+	    	a.dmgDice	  = (dmgDice != null) ? dmgDice : Types.D10;
+	    	a.numDmgDice  = (numDmgDice != 0) ? numDmgDice : 2;
 	    	a.defended    = (defended != null) ? defended : false;
 	    	
 	    	return a;
@@ -207,26 +225,42 @@ public class Account implements MeshCombatant{
 		this.armor = armor;
 	}
 	
+	public void setDmgDice(Types dice) {
+		this.dmgDice = dice;
+	}
+	
+	public Types getDmgDice() {
+		return this.dmgDice;
+	}
+	
+	public void setNumDmgDice(int num) {
+		this.numDmgDice = num;
+	}
+	
+	public int getNumDmgDice() {
+		return this.numDmgDice;
+	}
+	
 	// MeshCombatant Methods
 	
 	@Override
 	public int meshAttack() {
-		return calcMeshDamage(Types.D10, 2);
+		return calcMeshDamage(dmgDice, numDmgDice);
 	}
 
 	@Override
 	public int calcMeshDamage(Types type, int num) {
 		int total = 0;
 		Dice dice = DiceFactory.get(type);
-		for (int i = 0; i > num; i++) {
+		for (int i = 0; i < num; i++) {
 			total += dice.roll();
 		}
 		return total;
 	}
 
 	@Override
-	public void takeMeshDamage(int damage) {
-		int modDamage = damage - armor;
+	public int takeMeshDamage(int damage, Boolean isCrit) {
+		int modDamage = (damage * (isCrit ? 2 : 1)) - armor ;
 		this.damage += modDamage;
 		this.wounds += calcMeshWounds(modDamage);
 		if (this.damage >= durability) {
@@ -235,6 +269,7 @@ public class Account implements MeshCombatant{
 		if (this.damage >= deathRating) {
 			// Dead
 		}	
+		return modDamage;
 	}
 
 	@Override
@@ -256,4 +291,8 @@ public class Account implements MeshCombatant{
 		return defended;
 	}
 
+	@Override
+	public int woundModifier() {
+		return wounds * -10;
+	}
 }

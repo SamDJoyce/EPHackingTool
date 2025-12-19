@@ -8,66 +8,64 @@ package hackingtool.dice;
  */
 public class Tests {
 	
-	private int 	roll;
 	private int		attRoll;
 	private int		defRoll;
-	private String 	outcome;
-	private String 	attOutcome;
-	private String 	defOutcome;
+	private Dice    dice;
+	private Dice 	attDice;
+	private Dice 	defDice;
 	
 	// ----- Constructor ----- \\
 	
 	public Tests() {
+		dice    = DiceFactory.get(Types.PERCENTILE);
+		attDice = DiceFactory.get(Types.PERCENTILE);
+		defDice = DiceFactory.get(Types.PERCENTILE);
 	}
 	
 	// ----- Getters/Setters ----- \\
 	
 	public int getRoll() {
-		return roll;
-	}
-
-	public void setRoll(int roll) {
-		this.roll = roll;
+		return dice.getResults();
 	}
 
 	public int getAttRoll() {
-		return attRoll;
-	}
-
-	public void setAttRoll(int attRoll) {
-		this.attRoll = attRoll;
+		return attDice.getResults();
 	}
 
 	public int getDefRoll() {
-		return defRoll;
-	}
-
-	public void setDefRoll(int defRoll) {
-		this.defRoll = defRoll;
+		return defDice.getResults();
 	}
 
 	public String getOutcome() {
-		return outcome;
-	}
-	
-	public void setOutcome(String outcome) {
-		this.outcome = outcome;
+		return dice.getEval();
 	}
 	
 	public String getAttOutcome() {
-		return attOutcome;
+		return attDice.getEval();
 	}
-
-	public void setAttOutcome(String attOutcome) {
-		this.attOutcome = attOutcome;
-	}
-
+	
 	public String getDefOutcome() {
-		return defOutcome;
+		return defDice.getEval();
 	}
-
-	public void setDefOutcome(String defOutcome) {
-		this.defOutcome = defOutcome;
+	
+	public Boolean attCrit() {
+		return attDice.isCrit();
+	}
+	
+	public Boolean defCrit() {
+		return defDice.isCrit();
+	}
+	
+	public Dice getDice() {
+		return dice;
+	}
+	
+	public Dice getAttDice() {
+		return attDice;
+	}
+	
+	public Dice getDefDice() {
+		return defDice;
 	}
 	
 	// ----- Methods ----- \\
@@ -77,9 +75,9 @@ public class Tests {
 	 * @return			true if the roller succeeds
 	 */
 	public Boolean successTest(int target) {
-		Dice dice = DiceFactory.get(Types.PERCENTILE);
-		roll = dice.roll();
-		outcome = dice.checkRoll(target);
+		//Dice dice = DiceFactory.get(Types.PERCENTILE);
+		dice.roll();
+		dice.checkRoll(target);
 		return dice.isHit();
 	}
 	
@@ -89,16 +87,15 @@ public class Tests {
      * @return			true if the attacker wins, false if defender wins
      */
     public Boolean opposedTest(int attacker, int defender) {
-    	Dice attDice = DiceFactory.get(Types.PERCENTILE);
-    	Dice defDice = DiceFactory.get(Types.PERCENTILE);
+
     	
     	// Roll and check the attacker's dice
-    	attRoll    = attDice.roll();
-    	attOutcome = attDice.checkRoll(attacker);
+    	attDice.roll();
+    	attDice.checkRoll(attacker);
     	
     	// Roll and check the defender's dice
-    	defRoll    = defDice.roll();
-    	defOutcome = defDice.checkRoll(defender);
+    	defDice.roll();
+    	defDice.checkRoll(defender);
     	
     	// Compare results
     	
@@ -112,7 +109,7 @@ public class Tests {
     	if (attDice.isHit()
     	&& !attDice.isCrit() 
     	&&  defDice.isCritSuccess()) {
-			return true;
+			return false;
 		}
     	
     	if (attDice.isCritSuccess()

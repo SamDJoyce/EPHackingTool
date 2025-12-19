@@ -29,13 +29,15 @@
 		<h2>Target</h2>
 		<table id="targetTable">
 			<!-- Headers -->
-			<tr><th>System Name</th><th>Firewall</th><th>Infosec</th><th>Alert</th></tr>
+			<tr><th>System Name</th><th>Firewall</th><th>Infosec</th><th>Alert</th><th>Damage</th><th>Wounds</th></tr>
 			<!-- Data Rows -->
 			<tr>
 				<td><%= target.getName() %></td>
 				<td><%= target.getFirewall() %></td>
 				<td><%= target.getInfosec() %></td>
 				<td><%= target.getAlertString() %></td>
+				<td><%= target.getDamage() %>/<%= target.getDurability() %></td>
+				<td><%= target.getWounds() %></td>
 			</tr>			
 		</table>
 		<!-- Action buttons -->
@@ -59,6 +61,13 @@
 			<form method='post' action='Hacking'>
 				<input type='hidden' name='action' value='subversion'>
 				<input type='submit' value='SubvertSystem'>
+			</form>
+			<!-- Mesh Attack -->
+			<form method='post' action='Hacking'>
+				<input type='hidden' name='action' value='meshAttack'>
+				<input type='submit' value='Mesh Attack'>
+				<input type='checkbox' id='local' name='local' value='true' >
+				<label for='local'>Local Attack</label>
 			</form>
 		<%		
 		}

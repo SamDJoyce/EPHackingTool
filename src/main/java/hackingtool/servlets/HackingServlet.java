@@ -20,6 +20,9 @@ import hackingtool.logging.Observer;
 @WebServlet("/Hacking")
 public class HackingServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private static final String LOCAL 		   = "local";
+	private static final String MESH_ATTACK    = "meshAttack";
 	private static final String SUBVERSION     = "subversion";
 	private static final String IMPROVE_STATUS = "improveStatus";
 	private static final String HACKING_JSP    = "WEB-INF/views/Hacking.jsp";
@@ -71,6 +74,7 @@ public class HackingServlet extends HttpServlet {
 		String  action;
 		String  bruteForceParam;
 		Boolean bruteForce = false;
+		Boolean local;
 		if (request.getParameter(ACTION) != null) {
 			action = request.getParameter(ACTION);
 		} else {
@@ -79,7 +83,7 @@ public class HackingServlet extends HttpServlet {
 		if (request.getParameter(BRUTE_FORCE) != null) {
 			bruteForceParam = request.getParameter(BRUTE_FORCE);
 			bruteForce = Boolean.valueOf(bruteForceParam);
-		}
+		} 
 		// Check action
 		if (action != null && !action.isEmpty()) {
 			hack = new Hacking(target, hacker, bruteForce);
@@ -90,6 +94,13 @@ public class HackingServlet extends HttpServlet {
 				hack.upgradeStatus();
 			} else if (SUBVERSION.equalsIgnoreCase(action)) {
 				hack.subvertSystem();
+			} else if (MESH_ATTACK.equalsIgnoreCase(action)) {
+				if (request.getParameter(LOCAL) != null) {
+					local = Boolean.valueOf(request.getParameter(LOCAL)) ;
+				} else {
+					local = false;
+				}
+				hack.meshAttack(local);
 			}
 		}
 		doGet(request,response);

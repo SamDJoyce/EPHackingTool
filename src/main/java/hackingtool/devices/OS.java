@@ -54,7 +54,7 @@ public class OS implements MeshCombatant{
 	}
 
     public int getFirewall() {
-		return firewall;
+		return firewall + woundModifier();
 	}
 
 	public void setFirewall(int firewall) {
@@ -62,7 +62,7 @@ public class OS implements MeshCombatant{
 	}
 
 	public int getInfosec() {
-		return infosec;
+		return infosec + woundModifier();
 	}
 
 	public void setInfosec(int infosec) {
@@ -109,15 +109,15 @@ public class OS implements MeshCombatant{
 	public int calcMeshDamage(Types type, int num) {
 		int total = 0;
 		Dice dice = DiceFactory.get(type);
-		for (int i = 0; i > num; i++) {
+		for (int i = 0; i < num; i++) {
 			total += dice.roll();
 		}
 		return total;
 	}
 
 	@Override
-	public void takeMeshDamage(int damage) {
-		int modDamage = damage - armor;
+	public int takeMeshDamage(int damage, Boolean isCrit) {
+		int modDamage = (damage * (isCrit ? 2 : 1)) - armor ;
 		this.damage += modDamage;
 		this.wounds += calcMeshWounds(modDamage);
 		if (this.damage >= durability) {
@@ -126,6 +126,7 @@ public class OS implements MeshCombatant{
 		if (this.damage >= deathRating) {
 			// Dead
 		}
+		return modDamage;
 	}
 
 	@Override
@@ -146,6 +147,10 @@ public class OS implements MeshCombatant{
 	public Boolean isDefended() {
 		return defended;
 	}
-
+	
+	@Override
+	public int woundModifier() {
+		return wounds * -10;
+	}
 
 }
