@@ -43,10 +43,9 @@
 		<!-- Action buttons -->
 		<form method='post' action='Hacking'>
 			<input type='hidden' name='action'value='intrusion'>
+			<input type='submit' value='Perform Intrusion'>
 			<input type='checkbox' name='bruteForce' value='true' id='bfCheck'>
 			<label for='bfCheck'>Brute force</label>
-			<br>
-			<input type='submit' value='Perform Intrusion'>
 		</form>
 			<% 	
 		if (account != null){
@@ -78,7 +77,7 @@
 		<h2>Hacker</h2>
 		<table>
 			<!-- Headers -->
-			<tr><th>Name</th><th>Infosec</th><th>Firewall</th><th>Account</th><th>Status</th></tr>
+			<tr><th>Name</th><th>Infosec</th><th>Firewall</th><th>Account</th><th>Status</th><th>Damage</th><th>Wounds</th></tr>
 			<!-- Data Rows -->
 			<tr>
 				<td><%= hacker.getName() %></td>
@@ -86,6 +85,8 @@
 				<td><%= hacker.getFirewall() %></td>
 				<td><%= account != null ? account.getPriv() : "None" %></td>
 				<td><%= account != null ? account.getStatus() : "N/A" %></td>
+				<td><%= hacker.getDamage() %>/<%= hacker.getDurability() %></td>
+				<td><%= hacker.getWounds() %></td>
 			</tr>
 		</table>
 	</div>
