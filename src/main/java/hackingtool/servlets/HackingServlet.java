@@ -31,7 +31,7 @@ public class HackingServlet extends HttpServlet {
 	private static final String INTRUSION 	   = "intrusion";
 	
 	// Create example system for testing
-	private static final Device target = DeviceFactory.createRandom("Mote");
+	private static final Device target = DeviceFactory.getRandom("Mote");
 	// Create example user for testing
 	private static final User hacker = new User("TestUser", 75, 75, 25);
 	
@@ -61,6 +61,10 @@ public class HackingServlet extends HttpServlet {
 		} else {
 			request.setAttribute("target", target);
 			request.setAttribute("hacker", hacker);
+		}
+		if (request.getParameter("targetNode") != null) {
+			Integer targetNodeID = Integer.valueOf(request.getParameter("targetNode")) ;
+			// TODO retrieve the node from the db
 		}
 		
 		request.getRequestDispatcher(HACKING_JSP)

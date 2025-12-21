@@ -3,6 +3,7 @@ package hackingtool.devices;
 import java.util.List;
 
 public interface Hackable {
+	int getID();
 	String getName();
 	void setName(String name);
 	
@@ -25,6 +26,7 @@ public interface Hackable {
 	void updateAccount (Account account);
 	void removeAccount(Account account);
 	void clearAccounts();
+	Boolean accountPresent(User user);
 	
 	void setAlert(Alerts alertLevel);
 	void setAlertLevel(int level);

@@ -9,7 +9,9 @@ import hackingtool.hacking.MeshCombatant;
 
 public class OS implements MeshCombatant{
 
-    private int woundThresh;
+	private int id;
+	private String type;
+	private int woundThresh;
     private int durability;
     private int deathRating;
 	private int wounds;
@@ -19,16 +21,57 @@ public class OS implements MeshCombatant{
     private int infosec;
     private Boolean defended;
 
-	public OS(int durability, int firewall) {
+	public OS(String type, int durability, int firewall) {
+		this.type = type;
 		this.durability = durability;
 		this.woundThresh = durability/5;
 		this.deathRating = durability*2;
 		this.firewall = firewall;
 		this.infosec = firewall;
+		this.damage = 0;
+		this.wounds = 0;
 		this.armor = 0;
 		this.defended = false;
 	}
-    	
+	
+	public OS( 	int id, 
+				String type, 
+				int durability, 
+				int armor, 
+				int firewall, 
+				int infosec, 
+				Boolean defended) {
+		this.id = id;
+		this.type = type;
+		this.durability = durability;
+		this.woundThresh = durability/5;
+		this.deathRating = durability*2;
+		this.damage = 0;
+		this.wounds = 0;
+		this.armor = armor;
+		this.firewall = firewall;
+		this.infosec = infosec;
+		this.defended = defended;
+		
+	}
+    
+
+	public int getID() {
+		return id;
+	}
+	
+	public void setID(int id) {
+		this.id = id;
+	}
+	
+    public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
     public int getWoundThresh() {
 		return woundThresh;
 	}

@@ -15,7 +15,7 @@ public enum Types {
 		return this.sides;
 	}
 	
-	public Types fromInt(int n) {
+	public static Types fromInt(int n) {
 		for (Types t : Types.values()) {
 			if (t.get() == n) {
 				return t;

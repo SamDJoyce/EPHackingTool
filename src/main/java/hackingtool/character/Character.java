@@ -104,7 +104,7 @@ public class Character {
 		this.init		    = (ref + inu)/5;
 		this.infection	    = psiRating * 10;
 		// Create device, user, account, then put them together
-		meshDevice =  DeviceFactory.create("host");
+		meshDevice =  DeviceFactory.get("host");
 		user = new User(name, meshDevice.getFirewall(), infosec, 20);
 		Account account = new Account.Builder()
 									 .setUser(user)

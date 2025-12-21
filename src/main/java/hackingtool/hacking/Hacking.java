@@ -146,6 +146,7 @@ public class Hacking implements Observable{
 				intruder = bfIntrusionFailure();
 			}
 			// Register the new account
+			intruder.setDeviceID(target.getID());
 			target.addAccount(intruder);
 			notifyObservers(log);
 			return success;

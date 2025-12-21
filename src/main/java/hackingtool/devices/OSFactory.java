@@ -12,35 +12,35 @@ public class OSFactory {
 
 	public static OS get(String type) {
 		if ("Mote".equalsIgnoreCase(type)) {
-			return new OS(MOTE_DUR, MOTE_FW);
+			return new OS(type,MOTE_DUR, MOTE_FW);
 		} else if ("Host".equalsIgnoreCase(type)) {
-			return new OS(HOST_DUR, HOST_FW);
+			return new OS(type,HOST_DUR, HOST_FW);
 		} else if ("Server".equalsIgnoreCase(type)) {
-			return new OS(SERVER_DUR, SERVER_FW);
+			return new OS(type,SERVER_DUR, SERVER_FW);
 		}
-		else return new OS(MOTE_DUR, MOTE_FW);
+		else return new OS(type,MOTE_DUR, MOTE_FW);
 	}
 	
 	public static OS get(String type, int firewall) {
 		if ("Mote".equalsIgnoreCase(type)) {
-			return new OS(MOTE_DUR, firewall);
+			return new OS(type,MOTE_DUR, firewall);
 		} else if ("Host".equalsIgnoreCase(type)) {
-			return new OS(HOST_DUR, firewall);
+			return new OS(type,HOST_DUR, firewall);
 		} else if ("Server".equalsIgnoreCase(type)) {
-			return new OS(SERVER_DUR, firewall);
+			return new OS(type,SERVER_DUR, firewall);
 		}
-		else return new OS(MOTE_DUR, firewall);
+		else return new OS(type,MOTE_DUR, firewall);
 	}
 	
 	public static OS getRandom(String type) {
 		if ("Mote".equalsIgnoreCase(type)) {
-			return new OS(MOTE_DUR, randomMote());
+			return new OS(type,MOTE_DUR, randomMote());
 		} else if ("Host".equalsIgnoreCase(type)) {
-			return new OS(HOST_DUR, randomHost());
+			return new OS(type,HOST_DUR, randomHost());
 		} else if ("Server".equalsIgnoreCase(type)) {
-			return new OS(SERVER_DUR, randomServer());
+			return new OS(type,SERVER_DUR, randomServer());
 		}
-		else return new OS(MOTE_DUR, randomMote());
+		else return new OS(type,MOTE_DUR, randomMote());
 	}
 	
 	// Helper Methods

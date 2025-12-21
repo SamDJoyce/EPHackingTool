@@ -1,0 +1,147 @@
+/* =========================================================
+   Eclipse Phase – System / Mesh Interface Theme
+   ========================================================= */
+
+/* -------- Global Reset -------- */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Courier New", Consolas, monospace;
+    background-color: #0b0f14; /* deep space black-blue */
+    color: #c9e6ff;            /* soft cyan text */
+}
+
+/* -------- Headings -------- */
+h1, h2 {
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6fd2ff;
+    margin-bottom: 0.5em;
+}
+
+h1 {
+    font-size: 1.6em;
+    border-bottom: 1px solid #1e3a4a;
+    padding-bottom: 0.3em;
+    margin-left: 20px;
+}
+
+h2 {
+    font-size: 1.2em;
+}
+
+/* -------- Layout Containers -------- */
+#target, #hacker {
+    background: linear-gradient(180deg, #0e141c, #0a0f15);
+    border: 1px solid #1e3a4a;
+    padding: 1em;
+    margin: 1em 0;
+    box-shadow: 0 0 12px rgba(80, 200, 255, 0.08);
+}
+
+/* -------- Tables -------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+th, td {
+    padding: 0.5em 0.6em;
+    text-align: center;
+    border: 1px solid #1e3a4a;
+}
+
+th {
+    background-color: #0f1c26;
+    color: #9be4ff;
+    font-size: 0.85em;
+}
+
+td {
+    background-color: #0b141d;
+}
+
+/* Highlight danger values (you can add classes later) */
+td.alert {
+    color: #ff6b6b;
+}
+
+td.ok {
+    color: #6bffb3;
+}
+
+/* -------- Forms & Controls -------- */
+form {
+    margin: 0.5em 0;
+}
+
+input[type="submit"] {
+    background: linear-gradient(180deg, #112433, #0c1a26);
+    border: 1px solid #2c6f8f;
+    color: #bfeaff;
+    padding: 0.4em 0.8em;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background: #14324a;
+    box-shadow: 0 0 8px rgba(120, 220, 255, 0.4);
+}
+
+input[type="checkbox"] {
+    margin-left: 0.8em;
+    accent-color: #6fd2ff;
+}
+
+label {
+    font-size: 0.8em;
+    color: #9be4ff;
+    margin-left: 0.2em;
+}
+
+/* -------- Separators -------- */
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #1e3a4a, transparent);
+}
+
+/* -------- Event / System Log -------- */
+p {
+    margin: 0.2em 0;
+    margin-left: 20px;
+    font-size: 0.85em;
+    color: #b8dfff;
+}
+
+/* Log block feel (optional future wrapper) */
+.log-entry {
+    padding-left: 0.6em;
+    border-left: 2px solid #2c6f8f;
+    margin-bottom: 0.4em;
+}
+
+/* -------- Subtle System Effects -------- */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    opacity: 0.15;
+}

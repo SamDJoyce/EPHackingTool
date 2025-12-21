@@ -7,6 +7,7 @@ import hackingtool.dice.Types;
 import hackingtool.hacking.MeshCombatant;
 
 public class User implements MeshCombatant{
+	private int id;
 	private String name;
     private int infosec;
     private int firewall;
@@ -18,14 +19,32 @@ public class User implements MeshCombatant{
 	private int armor;
 
     public User(String name, int firewall, int infosec, int dur){ // constructor
-        this.name = name;
-    	this.firewall = firewall;
-        this.infosec = infosec;
-        this.durability = dur;
+        this.name 		 = name;
+    	this.firewall 	 = firewall;
+        this.infosec 	 = infosec;
+        this.durability  = dur;
+        this.woundThresh = dur/5;
+        this.deathRating = dur*2;
+    }
+    
+    public User(int id, String name, int firewall, int infosec, int dur){ // constructor
+        this.id 		 = id;
+    	this.name 		 = name;
+    	this.firewall 	 = firewall;
+        this.infosec 	 = infosec;
+        this.durability  = dur;
         this.woundThresh = dur/5;
         this.deathRating = dur*2;
     }
 
+    public int getID() {
+    	return id;
+    }
+    
+    public void setID(int id) {
+    	this.id = id;
+    }
+    
     public String getName() {
 		return name;
 	}

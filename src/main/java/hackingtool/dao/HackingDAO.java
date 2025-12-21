@@ -1,0 +1,826 @@
+package hackingtool.dao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import hackingtool.devices.Account;
+import hackingtool.devices.Alerts;
+import hackingtool.devices.Device;
+import hackingtool.devices.IntruderStatus;
+import hackingtool.devices.OS;
+import hackingtool.devices.Privileges;
+import hackingtool.devices.User;
+import hackingtool.dice.Types;
+import hackingtool.services.HackingService;
+
+public class HackingDAO implements HackingService {
+	
+	private static final String NODES_TABLE		= "nodes";
+	private static final String OS_TABLE 		= "os";
+	private static final String USERS_TABLE 	= "users";
+	private static final String ACCOUNTS_TABLE 	= "accounts";
+	
+	public HackingDAO() {
+	}
+
+	// Node Methods
+	@Override
+	public Device createNode(String name, Boolean mindware, Boolean defended, OS os, Alerts alert) {
+		Device device = new Device.Builder()
+								  .setSystemName(name)
+								  .setMindware(mindware)
+								  .setDefended(defended)
+								  .setOS(os)
+								  .setAlert(alert)
+								  .build();
+		final String newDevice = "INSERT INTO " + NODES_TABLE 
+							   +" (name, mindware, defended, alert) "
+							   + "VALUES (?,?,?,?)";
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		ResultSet		  generatedKeys = null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(newDevice,  Statement.RETURN_GENERATED_KEYS);
+			
+			statement.setString (1, device.getName());
+			statement.setBoolean(2, device.isMindware());
+			statement.setBoolean(3, device.isDefended());
+			statement.setInt	(4, device.getAlertLevel());
+			
+			statement.executeUpdate();
+			generatedKeys = statement.getGeneratedKeys();
+			
+			if (generatedKeys.next()) {
+				// If the insertion was successful, assign the ID and insert the OS
+				int generatedID = generatedKeys.getInt(1);
+				device.setID(generatedID);
+				createOS(device.getOS());
+			}
+			return device;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (generatedKeys != null) {
+					generatedKeys.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	public Device createNode(Device device) {
+		final String newDevice = "INSERT INTO " + NODES_TABLE 
+				   +" (name, mindware, defended, alert) "
+				   + "VALUES (?,?,?,?)";
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		ResultSet		  generatedKeys = null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(newDevice,  Statement.RETURN_GENERATED_KEYS);
+			
+			statement.setString (1, device.getName());
+			statement.setBoolean(2, device.isMindware());
+			statement.setBoolean(3, device.isDefended());
+			statement.setInt	(4, device.getAlertLevel());
+			
+			statement.executeUpdate();
+			generatedKeys = statement.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				int generatedID = generatedKeys.getInt(1);
+				device.setID(generatedID);
+				createOS(device.getOS());
+			}
+			return device;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (generatedKeys != null) {
+					generatedKeys.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Device updateNode(Device device) {
+		String updateNode = "UPDATE " + NODES_TABLE + " SET "
+						  + "id = ?, "
+						  + "name = ?, "
+						  + "mindware = ?, "
+						  + "defended = ?, "
+						  + "alert = ?";
+		Connection 		  connection    = null;
+		PreparedStatement statement     = null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(updateNode);
+			
+			statement.setInt(1, device.getID());
+			statement.setString(2, device.getName());
+			statement.setBoolean(3, device.isMindware());
+			statement.setBoolean(4, device.isDefended());
+			statement.setInt(5, device.getAlertLevel());
+			statement.executeUpdate();
+			updateOS(device.getOS());
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return device;
+	}
+
+	@Override
+	public Device getNode(int id) {
+		Device device = null;
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resSet = null;
+		String getNode = "SELECT * FROM " + NODES_TABLE + " WHERE id = ?";
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(getNode);
+			statement.setInt(1, id);
+			resSet = statement.executeQuery();
+			
+			if (resSet.next()) {
+				device = new Device.Builder()
+									.setID(resSet.getInt("id"))
+									.setSystemName(resSet.getString("name"))
+									.setMindware(resSet.getBoolean("mindware"))
+									.setDefended(resSet.getBoolean("defended"))
+									.setOS(getOS(id))
+									.setAlert(Alerts.fromLevel(resSet.getInt("alert")))
+									.setAccounts(getAllNodeAccounts(id))
+									.build();
+			}
+			//
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet!=null) {
+					resSet.close();
+				}
+				if (statement!=null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return device;
+	}
+
+	@Override
+	public Boolean deleteNode(int id) {
+		String deleteNode = "DELETE FROM " + NODES_TABLE + " WHERE id = ?";
+		
+		try (Connection connection = DBConnection.getInstance().getConnection();
+			PreparedStatement statement = connection.prepareStatement(deleteNode)) {
+			if (deleteOS(id)) {
+			statement.setInt(1, id);
+	        statement.executeUpdate();
+	        return true;
+			}
+			return false;
+	    } catch (SQLException e) {
+		        e.printStackTrace();
+		        return false;
+		}
+	}
+
+	@Override
+	public List<Device> getAllNodes() {
+		List<Device> allDevices = new ArrayList<>();
+		String getAllNodes = "SELECT * FROM " + NODES_TABLE;
+		Connection connection = null;
+		Statement  statement  = null;
+		ResultSet  resSet     = null;
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement  = connection.createStatement();
+			resSet     = statement.executeQuery(getAllNodes);
+			
+			while (resSet.next()) {
+				allDevices.add( new Device.Builder()
+									.setID(resSet.getInt("id"))
+									.setSystemName(resSet.getString("name"))
+									.setMindware(resSet.getBoolean("mindware"))
+									.setDefended(resSet.getBoolean("defended"))
+									.setOS(getOS(resSet.getInt("id")))
+									.setAlert(Alerts.fromLevel(resSet.getInt("alert")))
+									.build());
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet != null) {
+					resSet.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return allDevices;
+	}
+
+	// OS Methods
+	
+	@Override
+	public OS createOS(OS os) {
+		
+		final String newOS = "INSERT INTO " + OS_TABLE
+				   + " (id, type, durability, damage, wounds, armor, firewall, infosec, defended)"
+				   + " VALUES (?,?,?,?,?,?,?,?,?)";
+
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(newOS);
+			
+			statement = connection.prepareStatement(newOS);
+			statement.setInt(1, os.getID());			// ID
+			statement.setString(2,os.getType());		// Type
+			statement.setInt(3, os.getDurability());	// Durability
+			statement.setInt(4, 0);						// Damage
+			statement.setInt(5, 0);						// Wounds
+			statement.setInt(6, 0);						// Armor
+			statement.setInt(7, os.getFirewall());		// Firewall
+			statement.setInt(8, os.getFirewall());		// Infosec
+			statement.setBoolean(9, false);				// Defended
+			
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public OS getOS(int id) {
+		OS os = null;
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resSet = null;
+		String getOS = "SELECT * FROM " + OS_TABLE + " WHERE id = ?";
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(getOS);
+			statement.setInt(1, id);
+			resSet = statement.executeQuery();
+			
+			if (resSet.next()) {
+				os = new OS (
+							resSet.getInt("id"),
+							resSet.getString("type"),
+							resSet.getInt("durability"),
+							resSet.getInt("armor"),
+							resSet.getInt("firewall"),
+							resSet.getInt("infosec"),
+							resSet.getBoolean("defended")
+							);
+				return os;
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet!=null) {
+					resSet.close();
+				}
+				if (statement!=null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return os;
+	}
+	
+	@Override
+	public OS updateOS(OS os) {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		String updateOS = "UPDATE " + OS_TABLE + " SET "
+				+ "id = ?, "
+				+ "type = ?, "
+				+ "durability = ?, "
+				+ "damage = ?, "
+				+ "wounds = ?, "
+				+ "armor = ?, "
+				+ "firewall = ?, "
+				+ "infosec = ?, "
+				+ "defended = ?";
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(updateOS);
+			statement.setInt(1, os.getID());
+			statement.setString(2, os.getType());
+			statement.setInt(3, os.getDurability());
+			statement.setInt(4, os.getDamage());
+			statement.setInt(5, os.getWounds());
+			statement.setInt(6, os.getArmor());
+			statement.setInt(7, os.getFirewall());
+			statement.setInt(8, os.getInfosec());
+			statement.setBoolean(9, os.isDefended());
+			statement.executeUpdate();
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return os;
+	}
+	@Override
+	public Boolean deleteOS(int id) {
+	String deleteOS = "DELETE FROM " + OS_TABLE + " WHERE id = ?";
+		
+		try (Connection connection = DBConnection.getInstance().getConnection();
+			 PreparedStatement statement = connection.prepareStatement(deleteOS)) {
+			statement.setInt(1, id);
+	        statement.executeUpdate();
+	        return true;
+	    } catch (SQLException e) {
+		        e.printStackTrace();
+		        return false;
+		}
+	}
+	
+	
+	// Account Methods
+	@Override
+	public Account createAccount(
+								User user,
+								int deviceID, 
+								IntruderStatus status, 
+								Privileges priv, 
+								int dur, 
+								Boolean defended,
+								Types dmgDice, 
+								int numDmgDice ) {
+		final String newAccount = "INSERT INTO " + ACCOUNTS_TABLE 
+								+ " (userID, deviceID, status, privileges, durability, wounds, damage, armor, defended, dice, numDice) "
+								+ "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+		Account account = new Account.Builder()
+									.setUser(user)
+									.setDeviceID(deviceID)
+									.setStatus(status)
+									.setPriv(priv)
+									.setDur(dur)
+									.setDefended(defended)
+									.setDmgDice(dmgDice)
+									.setNumDmgDice(numDmgDice)
+									.build();
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		ResultSet		  generatedKeys = null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(newAccount,  Statement.RETURN_GENERATED_KEYS);
+			
+			statement.setInt(1, user.getID());				  // User ID
+			statement.setInt(2, account.getDeviceID());		  // Device ID
+			statement.setInt(3, account.getStatusLevel());	  // Status level
+			statement.setInt(4, account.getPrivLevel());	  // Privilege level
+			statement.setInt(5, account.getDurability());	  // Durability
+			statement.setInt(6, 0);							  // Wounds
+			statement.setInt(7, 0);							  // Damage
+			statement.setInt(8, 0);							  // Armor
+			statement.setBoolean(9, account.isDefended());	  // Defended
+			statement.setInt(10, account.getDmgDice().get()); // Damage Dice type
+			statement.setInt(11, account.getNumDmgDice());	  // Number of Damage Dice
+			
+			statement.executeUpdate();
+			generatedKeys = statement.getGeneratedKeys();
+			
+			if (generatedKeys.next()) {
+				int generatedID = generatedKeys.getInt(1);
+				account.setID(generatedID);
+			}
+			return account;
+			
+		}  catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (generatedKeys != null) {
+					generatedKeys.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Account createAccount (Account account) {
+		final String newAccount = "INSERT INTO " + ACCOUNTS_TABLE 
+				+ " (userID, deviceID, status, privileges, durability, wounds, damage, armor, defended, dice, numDice) "
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		ResultSet		  generatedKeys = null;
+		
+		try {
+		connection = DBConnection.getInstance().getConnection();
+		statement = connection.prepareStatement(newAccount,  Statement.RETURN_GENERATED_KEYS);
+		
+		statement.setInt(1, account.getUser().getID());				  // User ID
+		statement.setInt(2, account.getDeviceID());		  // Device ID
+		statement.setInt(3, account.getStatusLevel());	  // Status level
+		statement.setInt(4, account.getPrivLevel());	  // Privilege level
+		statement.setInt(5, account.getDurability());	  // Durability
+		statement.setInt(6, account.getWounds());		  // Wounds
+		statement.setInt(7, account.getDamage());		  // Damage
+		statement.setInt(8, account.getArmor());		  // Armor
+		statement.setBoolean(9, account.isDefended());	  // Defended
+		statement.setInt(10, account.getDmgDice().get()); // Damage Dice type
+		statement.setInt(11, account.getNumDmgDice());	  // Number of Damage Dice
+		
+		statement.executeUpdate();
+		generatedKeys = statement.getGeneratedKeys();
+		
+		if (generatedKeys.next()) {
+			int generatedID = generatedKeys.getInt(1);
+			account.setID(generatedID);
+		}
+		return account;
+		
+		}  catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (generatedKeys != null) {
+					generatedKeys.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Account updateAccount(Account account) {
+		final String updateAccount = "UPDATE " + ACCOUNTS_TABLE + " SET "
+				+ "id = ?, "
+				+ "userID = ?, "
+				+ "deviceID = ?, "
+				+ "status = ?, "
+				+ "privileges = ?, "
+				+ "durability = ?, "
+				+ "wounds = ?, "
+				+ "damage = ?, "
+				+ "armor = ?, "
+				+ "defended = ?, "
+				+ "dice = ?, "
+				+ "numDice = ?";
+
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		
+		try {
+		connection = DBConnection.getInstance().getConnection();
+		statement = connection.prepareStatement(updateAccount);
+		
+		statement.setInt(1, account.getID());			  // Account ID
+		statement.setInt(2, account.getUser().getID());	  // User ID
+		statement.setInt(3, account.getDeviceID());		  // Device ID
+		statement.setInt(4, account.getStatusLevel());	  // Status level
+		statement.setInt(5, account.getPrivLevel());	  // Privilege level
+		statement.setInt(6, account.getDurability());	  // Durability
+		statement.setInt(7, account.getWounds());		  // Wounds
+		statement.setInt(8, account.getDamage());		  // Damage
+		statement.setInt(9, account.getArmor());		  // Armor
+		statement.setBoolean(10, account.isDefended());	  // Defended
+		statement.setInt(11, account.getDmgDice().get()); // Damage Dice type
+		statement.setInt(12, account.getNumDmgDice());	  // Number of Damage Dice
+		
+		statement.executeUpdate();
+		return account;
+		
+		}  catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	public Account getAccount(int id) {
+		Account account = null;
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resSet = null;
+		String getAccount = "SELECT * FROM " + ACCOUNTS_TABLE + " WHERE id = ?";
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(getAccount);
+			statement.setInt(1, id);
+			resSet = statement.executeQuery();
+			
+			if (resSet.next()) {
+				account = new Account.Builder()
+									.setID(id)
+									.setDeviceID(resSet.getInt("deviceID"))
+									.setUser(getUser(resSet.getInt("userID")))
+									.setStatus(IntruderStatus.fromLevel(resSet.getInt("status")))
+									.setPriv(Privileges.fromLevel(resSet.getInt("privileges")))
+									.setDur(resSet.getInt("durability"))
+									.setWounds(resSet.getInt("wounds"))
+									.setDamage(resSet.getInt("damage"))
+									.setArmor(resSet.getInt("armor"))
+									.setDmgDice(Types.fromInt(resSet.getInt("dice")))
+									.setNumDmgDice(resSet.getInt("numDice"))
+									.build();
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet!=null) {
+					resSet.close();
+				}
+				if (statement!=null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return account;
+	}
+
+	@Override
+	public Boolean deleteAccount(int id) {
+	String deleteAccount = "DELETE FROM " + ACCOUNTS_TABLE + " WHERE id = ?";
+		
+		try (Connection connection = DBConnection.getInstance().getConnection();
+			PreparedStatement statement = connection.prepareStatement(deleteAccount)) {
+			statement.setInt(1, id);
+	        statement.executeUpdate();
+	        return true;
+			
+	    } catch (SQLException e) {
+		        e.printStackTrace();
+		        return false;
+		}
+		
+	}
+
+	@Override
+	public List<Account> getAllNodeAccounts(int nodeID) {
+		List<Account> accounts = new ArrayList<>();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resSet = null;
+		String getAccount = "SELECT * FROM " + ACCOUNTS_TABLE + " WHERE deviceID = ?";
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(getAccount);
+			statement.setInt(1, nodeID);
+			resSet = statement.executeQuery();
+			
+			while (resSet.next()) {
+				accounts.add( new Account.Builder()
+									.setID(resSet.getInt("id"))
+									.setDeviceID(resSet.getInt("deviceID"))
+									.setUser(getUser(resSet.getInt("userID")))
+									.setStatus(IntruderStatus.fromLevel(resSet.getInt("status")))
+									.setPriv(Privileges.fromLevel(resSet.getInt("privileges")))
+									.setDur(resSet.getInt("durability"))
+									.setWounds(resSet.getInt("wounds"))
+									.setDamage(resSet.getInt("damage"))
+									.setArmor(resSet.getInt("armor"))
+									.setDmgDice(Types.fromInt(resSet.getInt("dice")))
+									.setNumDmgDice(resSet.getInt("numDice"))
+									.build() );
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet!=null) {
+					resSet.close();
+				}
+				if (statement!=null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return accounts;
+	}
+	
+	// User methods
+	@Override
+	public User createUser(String name, int firewall, int infosec, int dur) {
+		User user = new User(name, firewall,infosec, dur);
+		final String newUser = "INSERT INTO " + USERS_TABLE
+							 + " (name, firewall, infosec, dur) "
+							 + "VALUES (?,?,?,?)";
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		ResultSet		  generatedKeys = null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(newUser,  Statement.RETURN_GENERATED_KEYS);
+			
+			statement.setString(1, user.getName());
+			statement.setInt(2, user.getFirewall());
+			statement.setInt(3, user.getInfosec());
+			statement.setInt(4, user.getDurability());
+			
+			statement.executeUpdate();
+			generatedKeys = statement.getGeneratedKeys();
+			
+			if (generatedKeys.next()) {
+				int generatedID = generatedKeys.getInt(1);
+				user.setID(generatedID);
+			}
+			return user;
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (generatedKeys != null) {
+					generatedKeys.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	public User updateUser(User user) {
+		
+		Connection 		  connection    = null;
+		PreparedStatement statement     = null;
+		String updateUser = "UPDATE " + USERS_TABLE + " SET "
+						  + "id = ?, "
+						  + "name = ?, "
+						  + "durability = ?, "
+						  + "wounds = ?, "
+						  + "damage = ?, "
+						  + "armor = ?";
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(updateUser);
+			
+			statement.setInt(1, user.getID());
+			statement.setString(2, user.getName());
+			statement.setInt(3, user.getDurability());
+			statement.setInt(4, user.getWounds());
+			statement.setInt(5, user.getDamage());
+			statement.setInt(6, user.getArmor());
+			statement.executeUpdate();
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return user;
+	}
+
+	@Override
+	public User getUser(int id) {
+		User user = null;
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resSet = null;
+		String getUser = "SELECT * FROM " + USERS_TABLE + " WHERE id = ?";
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(getUser);
+			statement.setInt(1, id);
+			resSet = statement.executeQuery();
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet!=null) {
+					resSet.close();
+				}
+				if (statement!=null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return user;
+	}
+
+	@Override
+	public Boolean deleteUser(int id) {
+		String deleteUser = "DELETE FROM " + USERS_TABLE + " WHERE id = ?";
+		
+		try (Connection connection = DBConnection.getInstance().getConnection();
+			PreparedStatement statement = connection.prepareStatement(deleteUser)) {
+			statement.setInt(1, id);
+	        statement.executeUpdate();
+	        return true;
+	    } catch (SQLException e) {
+		        e.printStackTrace();
+		        return false;
+		}
+		
+	}
+
+}

@@ -19,17 +19,18 @@
 	%>
 <head>
 	<meta charset="UTF-8">
+	<link rel="stylesheet" href="css/ep-system.css">
 	<title>Hacking</title>
 </head>
 
 <body>
 	<!-- Target System Information -->
-	<h1>Target System: <%= target.getName() %> </h1>
+	<h1>Target Node: <%= target.getName() %> </h1>
 	<div id="target">
-		<h2>Target</h2>
+		<h2>Node</h2>
 		<table id="targetTable">
 			<!-- Headers -->
-			<tr><th>System Name</th><th>Firewall</th><th>Infosec</th><th>Alert</th><th>Damage</th><th>Wounds</th></tr>
+			<tr><th>Name</th><th>Firewall</th><th>Infosec</th><th>Alert</th><th>Damage</th><th>Wounds</th></tr>
 			<!-- Data Rows -->
 			<tr>
 				<td><%= target.getName() %></td>
@@ -72,7 +73,7 @@
 		}
 		%>
 	</div>
-	<br><hr><br>
+	<hr>
 	<div id="hacker">
 		<h2>Hacker</h2>
 		<table>
@@ -90,7 +91,7 @@
 			</tr>
 		</table>
 	</div>
-	<br><hr><br>
+	<hr>
 	<!-- Show activity logs -->
 	<% 	
 	if (eventLog != null){

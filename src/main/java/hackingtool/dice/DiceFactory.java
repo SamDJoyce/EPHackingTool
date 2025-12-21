@@ -9,4 +9,8 @@ public class DiceFactory {
 		return new Dice(dieType.get());
 	}
 	
+	public static Dice get(int sides) {
+		return new Dice(sides);
+	}
+	
 }

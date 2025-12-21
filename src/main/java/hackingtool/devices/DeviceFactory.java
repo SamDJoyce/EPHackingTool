@@ -5,27 +5,26 @@ public class DeviceFactory {
 	private static final String SERVER = "Server";
 	private static final String HOST   = "Host";
 	private static final String MOTE   = "Mote";
-	private static int   id = 0;
 	
 	public DeviceFactory() {
 	}
 	
-	public static Device create(String type) {
+	public static Device get(String type) {
 		if (MOTE.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.get(type))
 							 .build();
 		} else if (HOST.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.get(type))
 							 .build();
 		} else if (SERVER.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type )
 							 .setMindware(false)
 							 .setOS(OSFactory.get(type))
 							 .build();
@@ -34,22 +33,22 @@ public class DeviceFactory {
 		}
 	}
 	
-	public static Device create(String type, int firewall) {
+	public static Device get(String type, int firewall) {
 		if (MOTE.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.get(type, firewall))
 							 .build();
 		} else if (HOST.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.get(type, firewall))
 							 .build();
 		} else if (SERVER.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.get(type, firewall))
 							 .build();
@@ -58,23 +57,23 @@ public class DeviceFactory {
 		}
 	}
 	
-	public static Device createRandom(String type) {
+	public static Device getRandom(String type) {
 		
 		if (MOTE.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+							 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.getRandom(type))
 							 .build();
 		} else if (HOST.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+					 		 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.getRandom(type))
 							 .build();
 		} else if (SERVER.equalsIgnoreCase(type)) {
 			return new Device.Builder()
-							 .setSystemName(type + "-" + ++id)
+						 	 .setSystemName(type)
 							 .setMindware(false)
 							 .setOS(OSFactory.getRandom(type))
 							 .build();

@@ -14,6 +14,7 @@ public class Account implements MeshCombatant{
 
 	//private static int nextID = 0;
 	private int id;
+	private int deviceID;
 	private User user;
 	private IntruderStatus status;
 	private Privileges priv;
@@ -36,13 +37,16 @@ public class Account implements MeshCombatant{
     }
 	
 	public static class Builder {
-		private static int nextID = 0;
 		private int id;
+		private int deviceID;
 		private User user;
 		private IntruderStatus status;
 		private Privileges priv;
 	    private int woundThresh;
 	    private int durability;
+	    private int wounds;
+	    private int damage;
+	    private int armor;
 	    private int deathRating;
 	    private Boolean defended;
 		private Types   dmgDice;
@@ -50,6 +54,11 @@ public class Account implements MeshCombatant{
 	    
 	    public Builder setID(int id) {
 	    	this.id = id;
+	    	return this;
+	    }
+	    
+	    public Builder setDeviceID(int deviceID) {
+	    	this.deviceID = deviceID;
 	    	return this;
 	    }
 	    
@@ -75,6 +84,21 @@ public class Account implements MeshCombatant{
 	    	return this;
 	    }
 	    
+	    public Builder setWounds(int wounds) {
+	    	this.wounds = wounds;
+	    	return this;
+	    }
+	    
+	    public Builder setDamage(int damage) {
+	    	this.damage = damage;
+	    	return this;
+	    }
+	    
+	    public Builder setArmor(int armor) {
+	    	this.armor = armor;
+	    	return this;
+	    }
+	    
 	    public Builder setDefended(Boolean defended) {
 	    	this.defended = defended;
 	    	return this;
@@ -93,13 +117,17 @@ public class Account implements MeshCombatant{
 	    public Account build() {
 	    	Account a = new Account();
 	    	
-	    	a.id 		  = (id == 0 ? ++nextID : id);
+	    	a.id 		  = id;
+	    	a.deviceID    = deviceID;
 	    	a.user 		  = user;
 	    	a.status 	  = status;
 	    	a.priv 		  = priv;
 	    	a.durability  = durability;
 	    	a.deathRating = deathRating;
 	    	a.woundThresh = woundThresh;
+	    	a.damage 	  = damage;
+	    	a.wounds 	  = wounds;
+	    	a.armor 	  = armor;
 	    	a.dmgDice	  = (dmgDice != null) ? dmgDice : Types.D10;
 	    	a.numDmgDice  = (numDmgDice != 0) ? numDmgDice : 2;
 	    	a.defended    = (defended != null) ? defended : false;
@@ -116,6 +144,14 @@ public class Account implements MeshCombatant{
 		this.id = id;
 	}
 	
+	public int getDeviceID() {
+		return deviceID;
+	}
+	
+	public void setDeviceID(int id) {
+		this.deviceID = id;
+	}
+	
 	public User getUser() {
 		return user;
 	}
@@ -130,6 +166,10 @@ public class Account implements MeshCombatant{
 
 	public void setStatus(IntruderStatus status) {
 		this.status = status;
+	}
+	
+	public int getStatusLevel() {
+		return status.getLevel();
 	}
 	
 	public void setStatusLevel(int level) {
@@ -154,6 +194,10 @@ public class Account implements MeshCombatant{
 
 	public void setPriv(Privileges priv) {
 		this.priv = priv;
+	}
+	
+	public int getPrivLevel() {
+		return priv.getLevel();
 	}
 	
 	public void setPrivLevel(int level) {
