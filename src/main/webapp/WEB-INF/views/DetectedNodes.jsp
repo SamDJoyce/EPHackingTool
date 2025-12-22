@@ -31,20 +31,24 @@
 			<%
 			Alerts alert;
 			String alertString;
+			String nodeStability;
 			Boolean hasAccount;
 			for (Hackable node : nodes) {
-				alert = node.getAlert();
-				alertString = alert.toString();
-				hasAccount = node.accountPresent(user);
+				// Only display the node if it is visible
+				if (node.isVisible()){
+					alert = node.getAlert();
+					alertString = alert.toString();
+					hasAccount = node.accountPresent(user);
+					nodeStability = node.getStability();
 			%>
-			<tr>
-				<td><a href='Hacking?targetNode=<%= node.getID() %>' ><%= node.getName() %></a></td>
-				<td><%= hasAccount ? "Present" : "No account" %></td>
-				<td><%= alertString %></td>
-				<!-- Status based on wounds, system damage percentage -->
-				<td> TBD </td>
-			</tr>
+				<tr>
+					<td><a href='Hacking?targetID=<%= node.getID() %>&hackerID=<%= user.getID() %>' ><%= node.getName() %></a></td>
+					<td><%= hasAccount ? "Present" : "No account" %></td>
+					<td><%= alertString %></td>
+					<td><%= nodeStability %> </td>
+				</tr>
 			<%
+				}
 			}
 			%>
 

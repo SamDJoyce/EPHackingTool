@@ -26,6 +26,7 @@
 <body>
 	<!-- Target System Information -->
 	<h1>Target Node: <%= target.getName() %> </h1>
+	<p><a href='Nodes'>&larr; back to Nodes List</a></p>
 	<div id="target">
 		<h2>Node</h2>
 		<table id="targetTable">
@@ -44,11 +45,23 @@
 		<!-- Action buttons -->
 		<form method='post' action='Hacking'>
 			<input type='hidden' name='action'value='intrusion'>
+			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
+			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
 			<input type='submit' value='Perform Intrusion'>
 			<input type='checkbox' name='bruteForce' value='true' id='bfCheck'>
 			<label for='bfCheck'>Brute force</label>
 		</form>
-			<% 	
+		<!-- Mesh Attack -->
+		<form method='post' action='Hacking'>
+			<input type='hidden' name='action' value='meshAttack'>
+			<input type='submit' value='Mesh Attack'>
+			<% if (account != null) { %>
+				<input type='checkbox' id='local' name='local' value='true' >
+				<label for='local'>Local Attack</label>
+			<%} %>
+			
+		</form>
+		<% 	
 		if (account != null){
 		%>
 			<!-- These tests are only possible with an account -->
@@ -60,15 +73,9 @@
 			<!-- Subversion -->
 			<form method='post' action='Hacking'>
 				<input type='hidden' name='action' value='subversion'>
-				<input type='submit' value='SubvertSystem'>
+				<input type='submit' value='Subvert System'>
 			</form>
-			<!-- Mesh Attack -->
-			<form method='post' action='Hacking'>
-				<input type='hidden' name='action' value='meshAttack'>
-				<input type='submit' value='Mesh Attack'>
-				<input type='checkbox' id='local' name='local' value='true' >
-				<label for='local'>Local Attack</label>
-			</form>
+			
 		<%		
 		}
 		%>

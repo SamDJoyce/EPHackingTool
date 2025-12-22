@@ -3,6 +3,7 @@ package hackingtool.hacking;
 import java.util.ArrayList;
 import java.util.List;
 
+import hackingtool.dao.HackingDAO;
 import hackingtool.devices.Account;
 import hackingtool.devices.Alerts;
 import hackingtool.devices.Hackable;
@@ -12,10 +13,12 @@ import hackingtool.devices.User;
 import hackingtool.dice.Tests;
 import hackingtool.logging.Observable;
 import hackingtool.logging.Observer;
+import hackingtool.services.HackingService;
 import hackingtool.logging.Event;
 // test
 public class Hacking implements Observable{
 	
+	private static final int ACCOUNT_DUR = 25;
 	private static final int 	BF_MOD		   = -30;
 	private static final int    HIDDEN_MOD	   = 10;
 	private static final int    MINDWARE_MOD   = -30;
@@ -43,6 +46,8 @@ public class Hacking implements Observable{
 	private static final String ALERT_TRIGGERED    	  = " Alert triggered.";
 	private static final String ATTEMPTING_BF_INTRUSION     = " is attempting a Brute Force Intrusion";
 	private static final String ATTEMPTING_SUBTLE_INTRUSION = " is attempting a Subtle Intrusion";
+	
+	private static final HackingService hackServ = new HackingDAO();
 	
 	private final Tests test = new Tests();
 
@@ -145,13 +150,18 @@ public class Hacking implements Observable{
 				// Spotted Status, Active Alert, Public account
 				intruder = bfIntrusionFailure();
 			}
-			// Register the new account
-			intruder.setDeviceID(target.getID());
+
+			// Insert the account into the DB
+			hackServ.createAccount(intruder);
+			// Add the account to the target
 			target.addAccount(intruder);
+			// Update the target in the DB
+			hackServ.updateNode(target);
+			// Record the log in event log
 			notifyObservers(log);
 			return success;
 			
-		} else { 			// Subtle Intrusion
+		} else { // Subtle Intrusion
 			success = test.opposedTest(hacker.getInfosec(), target.getFirewall());
 			// Construct log message
 			log.add(hacker.getName() + ATTEMPTING_SUBTLE_INTRUSION);
@@ -161,13 +171,22 @@ public class Hacking implements Observable{
 			
 			if (success) {
 				intruder = checkSubtleIntrusionSuccess(test);
+				// Create the new account
+				hackServ.createAccount(intruder);
+				// Register the account to the device
 				target.addAccount(intruder);
+				// Update the target in the database
+				hackServ.updateNode(target);
 			} else { //Failure
 				// Fail to gain access
 				// System goes on passive alert
 				if (target.getAlert() == Alerts.NONE) {
+					// Trigger a passive alert
 					target.setAlert(Alerts.PASSIVE);
+					// Log the alert
 					log.add(Alerts.PASSIVE.toString() + ALERT_TRIGGERED);
+					// Update the node in the DB
+					hackServ.updateNode(target);
 				}
 			}
 			notifyObservers(log);
@@ -201,10 +220,17 @@ public class Hacking implements Observable{
 			} else { // normal success - upgrade status one level
 				a.improveStatus();
 			}
+			
+			// Log the event
 			log.add(STATUS_IMPROVED + a.getStatus().toString());
 		} else { // Failure
 			checkExposure(attOutcome, a);
 		}
+		// Update the account in the DB
+		hackServ.updateAccount(a);
+		// Update the target in the DB
+		hackServ.updateNode(target);
+		// Record the log to event log
 		notifyObservers(log);
 	}
 	
@@ -225,6 +251,11 @@ public class Hacking implements Observable{
 			checkExposure(attOutcome,a);
 		} // On a success the thing happens
 		  // but there are no logical changes
+		// Update the account in the DB
+		hackServ.updateAccount(a);
+		// Update the target in the DB
+		hackServ.updateNode(target);
+		// Record the log in log event
 		notifyObservers(log);
 		return success;
 	}
@@ -256,6 +287,12 @@ public class Hacking implements Observable{
 		if (detected) {
 			log.add(Alerts.PASSIVE + ALERT_TRIGGERED);
 		}
+		
+		// Update the account in the DB
+		hackServ.updateAccount(target.getAccount(hacker));
+		// Update the target in the DB
+		hackServ.updateNode(target);
+		// Record the event with the event log
 		notifyObservers(log);
 		
 		return success;
@@ -302,9 +339,10 @@ public class Hacking implements Observable{
 		} else {
 			alert = target.getAlert();
 		}
-		
+		// Create the account and insert it into the database
 		intruder = new Account.Builder()
 				  .setUser(hacker)
+				  .setDeviceID(target.getID())
 				  .setStatus(status)
 				  .setPriv(priv)
 				  .setDur(hacker.getDurability())
@@ -331,13 +369,17 @@ public class Hacking implements Observable{
 	 */
 	private Account bfIntrusionFailure() {
 		Account intruder;
+		// Create the account
 		intruder = new Account.Builder()
 							  .setUser(hacker)
+							  .setDeviceID(target.getID())
 							  .setStatus(IntruderStatus.SPOTTED)
 							  .setPriv(Privileges.PUBLIC)
 							  .setDur(hacker.getDurability())
 							  .build();
+		// Update the target
 		target.setAlert(Alerts.ACTIVE);
+		// Log the event
 		log.add(Alerts.ACTIVE.toString() + ALERT_TRIGGERED);
 		log.add(hacker.getName() + SPOTTED_BY + target.getName());
 		return intruder;
@@ -380,13 +422,16 @@ public class Hacking implements Observable{
 			// gain user privileges
 			priv = Privileges.USER;
 		}
-		
+		// Create the account and insert it into the DB
 		intruder = new Account.Builder()
 							  .setUser(hacker)
+							  .setDeviceID(target.getID())
 							  .setStatus(status)
 							  .setPriv(priv)
 							  .setDur(hacker.getDurability())
-							  .build();
+							  .setDefended(true) // True as long as the player is actively hacking
+							  .build() ;
+		// Update the target object and DB
 		target.setAlert(alert);
 		
 		// Log Alerts triggered
@@ -416,9 +461,14 @@ public class Hacking implements Observable{
 		if (Alerts.ACTIVE.equals(target.getAlert())) {
 			modifier += ACTIVE_ALERT_MOD;
 		}
+		// -30 modifier if the device is mindware
 		if (target.isMindware()) {
 			modifier += MINDWARE_MOD;
 		}
+		// -10 modifier for each wound the user has
+		// Is this already done in user?
+		//modifier += hacker.getWounds() * -10;
+		
 		return modifier;
 	}
 	

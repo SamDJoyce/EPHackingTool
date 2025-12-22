@@ -195,5 +195,24 @@ public class OS implements MeshCombatant{
 	public int woundModifier() {
 		return wounds * -10;
 	}
+    public String getStability() {
+    	String stability = "Stable";
+		 if (damage >= deathRating * 0.75) {
+		    return "Severely damaged";
+		 }
+		 if (damage >= durability
+    	  || wounds >= 5) {
+    		return "Offline";
+    	}
+		if (damage >= durability * 0.75
+    	  || wounds == 4) {
+			return  "Critical";
+    	}   	
+    	if ((damage >= durability/2)
+    	   || wounds >= 2 ) {
+    		return "Unstable";
+    	}
 
+    	return stability;
+    }
 }

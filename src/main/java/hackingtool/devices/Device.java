@@ -9,9 +9,11 @@ public class Device implements Hackable{
     private String  systemName;
     private Boolean mindware;
     private Boolean defended;
+    private Boolean visible;
     private OS 	    os;
     private Alerts  alert;
     private List<Account> accounts;
+    private List<Hackable> linkedNodes;
     
     //private Device       masterDevice;
     //private List<Device> slavedDevices;
@@ -25,9 +27,11 @@ public class Device implements Hackable{
     	private String  systemName;
     	private Boolean mindware;
     	private Boolean defended;
+    	private Boolean visible;
     	private OS      os;
         private Alerts  alert;
         private List<Account> accounts;
+        private List<Hackable> linkedNodes;
     	
         public Builder setID(int id) {
         	this.id = id;
@@ -46,6 +50,10 @@ public class Device implements Hackable{
         	this.defended = isDefended;
         	return this;
         }
+        public Builder setVisible(Boolean visible) {
+        	this.visible = visible;
+        	return this;
+        }
         public Builder setOS(OS os) {
         	this.os = os;
         	return this;
@@ -58,6 +66,10 @@ public class Device implements Hackable{
 			this.accounts = accounts;
 			return this;
 		}
+		public Builder setLinkedNodes(List<Hackable> nodes) {
+			this.linkedNodes = nodes;
+			return this;
+		}
 		
 		public Device build() {
 			
@@ -65,11 +77,13 @@ public class Device implements Hackable{
 			
 			d.id         = id;
 			d.systemName = systemName;
-			d.mindware = (mindware != null) ? mindware : false;
+			d.mindware   = (mindware != null) ? mindware : false;
 			d.defended   = (defended != null) ? defended : false;
+			d.visible	 = (visible != null) ? visible : true;
 			d.os		 = (os != null) ? os : OSFactory.get("mote");
 			d.alert      = (alert != null) ? alert : Alerts.NONE;
 			d.accounts   = (accounts != null) ? accounts : new ArrayList<>() ;
+			d.linkedNodes = (linkedNodes != null) ? linkedNodes : new ArrayList<>();
 			
 			return d;
 		}
@@ -106,7 +120,7 @@ public class Device implements Hackable{
 	
 	public Account getAccount (User user) {
 		for (Account a : accounts) {
-			if (a.getUser().equals(user)) {
+			if (a.getUser().getID() == user.getID()) {
 				return a;
 			}
 		}
@@ -144,9 +158,9 @@ public class Device implements Hackable{
     @Override
     public Boolean accountPresent(User user) {
     	for (Account a : accounts) {
-    		if (a.getUser().equals(user)) {
-    			return true;
-    		}
+    		if (a.getUser().getID() == user.getID()) {
+                return true;
+            }
     	}
     	return false;
     }
@@ -235,8 +249,17 @@ public class Device implements Hackable{
 		return defended;
 	}
 
-
+    public Boolean isVisible() {
+    	return visible;
+    }
     
+    public void setVisible(Boolean visible) {
+    	this.visible = visible;
+    }
+    
+    public String getStability() {
+    	return os.getStability();
+    }
 	
 
 }

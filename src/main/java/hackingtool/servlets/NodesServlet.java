@@ -6,12 +6,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import hackingtool.dao.HackingDAO;
+import hackingtool.devices.Device;
 import hackingtool.devices.DeviceFactory;
-import hackingtool.devices.Hackable;
 import hackingtool.services.HackingService;
 
 /**
@@ -24,17 +22,22 @@ public class NodesServlet extends HttpServlet {
 	private static final String NODES_JSP = "WEB-INF/views/DetectedNodes.jsp";
 	private static final HackingService hackServ = new HackingDAO();
 	
-	private List<Hackable> nodes;
+
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public NodesServlet() {
         super();
-//        nodes = new ArrayList<>();
 //        for (int i = 0; i < 10; i++) {
-//        	hackServ.createNode(DeviceFactory.get("mote"));
+//        	Device device = DeviceFactory.get("mote");
+//        	device.setName(device.getName() + "-" + i);
+//        	if (i == 5) device.setVisible(false);
+//        	hackServ.createNode(device);
+//        	
 //        }
+//        
+//        hackServ.createUser("Test User", 80, 80, 25);
     }
 
 	/**
@@ -43,7 +46,8 @@ public class NodesServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		request.setAttribute("nodes", nodes);
+		request.setAttribute("nodes", hackServ.getAllNodes());
+		request.setAttribute("user", hackServ.getUser(1));
 		// Forward to Nodes.jsp view
 		request.getRequestDispatcher(NODES_JSP)
 		.forward(request, response);

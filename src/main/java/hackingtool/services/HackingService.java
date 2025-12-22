@@ -5,6 +5,7 @@ import java.util.List;
 import hackingtool.devices.Account;
 import hackingtool.devices.Alerts;
 import hackingtool.devices.Device;
+import hackingtool.devices.Hackable;
 import hackingtool.devices.IntruderStatus;
 import hackingtool.devices.OS;
 import hackingtool.devices.Privileges;
@@ -15,16 +16,17 @@ public interface HackingService {
 
 	// Node Services
 	
-	Device createNode(String  name,
+	Hackable createNode(String  name,
 					  Boolean mindware,
 					  Boolean defended,
+					  Boolean visible,
 					  OS	  os,
 					  Alerts  alert );
-	Device createNode(Device device);
-	Device  updateNode(Device device);
-	Device  getNode(int id);
+	Hackable createNode(Hackable device);
+	Hackable  updateNode(Hackable device);
+	Hackable  getNode(int id);
 	Boolean deleteNode(int id);
-	List<Device> getAllNodes();
+	List<Hackable> getAllNodes();
 	
 	// OS Services
 	

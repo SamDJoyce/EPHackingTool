@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface Hackable {
 	int getID();
+	void setID(int id);
+	
 	String getName();
 	void setName(String name);
 	
@@ -37,5 +39,9 @@ public interface Hackable {
 	void reduceAlert();
 	Boolean isMindware();
 	Boolean isDefended();
+	Boolean isVisible();
+	void setVisible(Boolean visible);
+	
 	OS getOS();
+	String getStability();
 }

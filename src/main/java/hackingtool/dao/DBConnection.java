@@ -16,7 +16,6 @@ public class DBConnection {
     private static final String NODES_TABLE		= "nodes";
     private static final String USERS_TABLE		= "users";
     private static final String ACCOUNTS_TABLE	= "accounts";
-    private static final String NODEACCOUNTS_TABLE = "nodeaccounts";
     private static final String baseURL     	= "jdbc:mysql://localhost/";
     private static final String fullURL			= baseURL + dbName + "?serverTimezone=America/Toronto";
 	private static final String DRIVER_NOT_FOUND = "DB driver not found";

@@ -10,6 +10,7 @@ import java.util.List;
 import hackingtool.devices.Account;
 import hackingtool.devices.Alerts;
 import hackingtool.devices.Device;
+import hackingtool.devices.Hackable;
 import hackingtool.devices.IntruderStatus;
 import hackingtool.devices.OS;
 import hackingtool.devices.Privileges;
@@ -29,17 +30,18 @@ public class HackingDAO implements HackingService {
 
 	// Node Methods
 	@Override
-	public Device createNode(String name, Boolean mindware, Boolean defended, OS os, Alerts alert) {
-		Device device = new Device.Builder()
+	public Hackable createNode(String name, Boolean mindware, Boolean defended, Boolean visible, OS os, Alerts alert) {
+		Hackable device = new Device.Builder()
 								  .setSystemName(name)
 								  .setMindware(mindware)
 								  .setDefended(defended)
+								  .setVisible(visible)
 								  .setOS(os)
 								  .setAlert(alert)
 								  .build();
 		final String newDevice = "INSERT INTO " + NODES_TABLE 
-							   +" (name, mindware, defended, alert) "
-							   + "VALUES (?,?,?,?)";
+							   +" (name, mindware, defended, visible, alert) "
+							   + "VALUES (?,?,?,?,?)";
 		Connection 		  connection 	= null;
 		PreparedStatement statement		= null;
 		ResultSet		  generatedKeys = null;
@@ -51,7 +53,8 @@ public class HackingDAO implements HackingService {
 			statement.setString (1, device.getName());
 			statement.setBoolean(2, device.isMindware());
 			statement.setBoolean(3, device.isDefended());
-			statement.setInt	(4, device.getAlertLevel());
+			statement.setBoolean(4, device.isVisible());
+			statement.setInt	(5, device.getAlertLevel());
 			
 			statement.executeUpdate();
 			generatedKeys = statement.getGeneratedKeys();
@@ -81,10 +84,10 @@ public class HackingDAO implements HackingService {
 		return null;
 	}
 	
-	public Device createNode(Device device) {
+	public Hackable createNode(Hackable device) {
 		final String newDevice = "INSERT INTO " + NODES_TABLE 
-				   +" (name, mindware, defended, alert) "
-				   + "VALUES (?,?,?,?)";
+				   +" (name, mindware, defended, visible, alert) "
+				   + "VALUES (?,?,?,?,?)";
 		Connection 		  connection 	= null;
 		PreparedStatement statement		= null;
 		ResultSet		  generatedKeys = null;
@@ -96,7 +99,8 @@ public class HackingDAO implements HackingService {
 			statement.setString (1, device.getName());
 			statement.setBoolean(2, device.isMindware());
 			statement.setBoolean(3, device.isDefended());
-			statement.setInt	(4, device.getAlertLevel());
+			statement.setBoolean(4, device.isVisible());
+			statement.setInt	(5, device.getAlertLevel());
 			
 			statement.executeUpdate();
 			generatedKeys = statement.getGeneratedKeys();
@@ -125,13 +129,14 @@ public class HackingDAO implements HackingService {
 	}
 
 	@Override
-	public Device updateNode(Device device) {
+	public Hackable updateNode(Hackable device) {
 		String updateNode = "UPDATE " + NODES_TABLE + " SET "
-						  + "id = ?, "
 						  + "name = ?, "
 						  + "mindware = ?, "
 						  + "defended = ?, "
-						  + "alert = ?";
+						  + "visible = ?, "
+						  + "alert = ? "
+						  + "WHERE id = ?";
 		Connection 		  connection    = null;
 		PreparedStatement statement     = null;
 		
@@ -139,11 +144,12 @@ public class HackingDAO implements HackingService {
 			connection = DBConnection.getInstance().getConnection();
 			statement = connection.prepareStatement(updateNode);
 			
-			statement.setInt(1, device.getID());
-			statement.setString(2, device.getName());
-			statement.setBoolean(3, device.isMindware());
-			statement.setBoolean(4, device.isDefended());
+			statement.setString(1, device.getName());
+			statement.setBoolean(2, device.isMindware());
+			statement.setBoolean(3, device.isDefended());
+			statement.setBoolean(4, device.isVisible());
 			statement.setInt(5, device.getAlertLevel());
+			statement.setInt(6, device.getID());
 			statement.executeUpdate();
 			updateOS(device.getOS());
 		} catch(SQLException e) {
@@ -161,8 +167,8 @@ public class HackingDAO implements HackingService {
 	}
 
 	@Override
-	public Device getNode(int id) {
-		Device device = null;
+	public Hackable getNode(int id) {
+		Hackable device = null;
 		Connection connection = null;
 		PreparedStatement statement = null;
 		ResultSet resSet = null;
@@ -180,6 +186,7 @@ public class HackingDAO implements HackingService {
 									.setSystemName(resSet.getString("name"))
 									.setMindware(resSet.getBoolean("mindware"))
 									.setDefended(resSet.getBoolean("defended"))
+									.setVisible(resSet.getBoolean("visible"))
 									.setOS(getOS(id))
 									.setAlert(Alerts.fromLevel(resSet.getInt("alert")))
 									.setAccounts(getAllNodeAccounts(id))
@@ -222,8 +229,8 @@ public class HackingDAO implements HackingService {
 	}
 
 	@Override
-	public List<Device> getAllNodes() {
-		List<Device> allDevices = new ArrayList<>();
+	public List<Hackable> getAllNodes() {
+		List<Hackable> allDevices = new ArrayList<>();
 		String getAllNodes = "SELECT * FROM " + NODES_TABLE;
 		Connection connection = null;
 		Statement  statement  = null;
@@ -239,8 +246,10 @@ public class HackingDAO implements HackingService {
 									.setSystemName(resSet.getString("name"))
 									.setMindware(resSet.getBoolean("mindware"))
 									.setDefended(resSet.getBoolean("defended"))
+									.setVisible(resSet.getBoolean("visible"))
 									.setOS(getOS(resSet.getInt("id")))
 									.setAlert(Alerts.fromLevel(resSet.getInt("alert")))
+									.setAccounts(getAllNodeAccounts(resSet.getInt("id")))
 									.build());
 			}
 			
@@ -352,7 +361,6 @@ public class HackingDAO implements HackingService {
 		Connection connection = null;
 		PreparedStatement statement = null;
 		String updateOS = "UPDATE " + OS_TABLE + " SET "
-				+ "id = ?, "
 				+ "type = ?, "
 				+ "durability = ?, "
 				+ "damage = ?, "
@@ -360,19 +368,20 @@ public class HackingDAO implements HackingService {
 				+ "armor = ?, "
 				+ "firewall = ?, "
 				+ "infosec = ?, "
-				+ "defended = ?";
+				+ "defended = ? "
+				+ "WHERE id = ?";
 		try {
 			connection = DBConnection.getInstance().getConnection();
 			statement = connection.prepareStatement(updateOS);
-			statement.setInt(1, os.getID());
-			statement.setString(2, os.getType());
-			statement.setInt(3, os.getDurability());
-			statement.setInt(4, os.getDamage());
-			statement.setInt(5, os.getWounds());
-			statement.setInt(6, os.getArmor());
-			statement.setInt(7, os.getFirewall());
-			statement.setInt(8, os.getInfosec());
-			statement.setBoolean(9, os.isDefended());
+			statement.setString(1, os.getType());
+			statement.setInt(2, os.getDurability());
+			statement.setInt(3, os.getDamage());
+			statement.setInt(4, os.getWounds());
+			statement.setInt(5, os.getArmor());
+			statement.setInt(6, os.getFirewall());
+			statement.setInt(7, os.getInfosec());
+			statement.setBoolean(8, os.isDefended());
+			statement.setInt(9,os.getID());
 			statement.executeUpdate();
 			
 		} catch(SQLException e) {
@@ -531,7 +540,6 @@ public class HackingDAO implements HackingService {
 	@Override
 	public Account updateAccount(Account account) {
 		final String updateAccount = "UPDATE " + ACCOUNTS_TABLE + " SET "
-				+ "id = ?, "
 				+ "userID = ?, "
 				+ "deviceID = ?, "
 				+ "status = ?, "
@@ -542,7 +550,8 @@ public class HackingDAO implements HackingService {
 				+ "armor = ?, "
 				+ "defended = ?, "
 				+ "dice = ?, "
-				+ "numDice = ?";
+				+ "numDice = ? "
+				+ "WHERE id = ?";
 
 		Connection 		  connection 	= null;
 		PreparedStatement statement		= null;
@@ -551,18 +560,18 @@ public class HackingDAO implements HackingService {
 		connection = DBConnection.getInstance().getConnection();
 		statement = connection.prepareStatement(updateAccount);
 		
-		statement.setInt(1, account.getID());			  // Account ID
-		statement.setInt(2, account.getUser().getID());	  // User ID
-		statement.setInt(3, account.getDeviceID());		  // Device ID
-		statement.setInt(4, account.getStatusLevel());	  // Status level
-		statement.setInt(5, account.getPrivLevel());	  // Privilege level
-		statement.setInt(6, account.getDurability());	  // Durability
-		statement.setInt(7, account.getWounds());		  // Wounds
-		statement.setInt(8, account.getDamage());		  // Damage
-		statement.setInt(9, account.getArmor());		  // Armor
-		statement.setBoolean(10, account.isDefended());	  // Defended
-		statement.setInt(11, account.getDmgDice().get()); // Damage Dice type
-		statement.setInt(12, account.getNumDmgDice());	  // Number of Damage Dice
+		statement.setInt(1, account.getUser().getID());	  // User ID
+		statement.setInt(2, account.getDeviceID());		  // Device ID
+		statement.setInt(3, account.getStatusLevel());	  // Status level
+		statement.setInt(4, account.getPrivLevel());	  // Privilege level
+		statement.setInt(5, account.getDurability());	  // Durability
+		statement.setInt(6, account.getWounds());		  // Wounds
+		statement.setInt(7, account.getDamage());		  // Damage
+		statement.setInt(8, account.getArmor());		  // Armor
+		statement.setBoolean(9, account.isDefended());	  // Defended
+		statement.setInt(10, account.getDmgDice().get()); // Damage Dice type
+		statement.setInt(11, account.getNumDmgDice());	  // Number of Damage Dice
+		statement.setInt(12, account.getID());			  // Account ID
 		
 		statement.executeUpdate();
 		return account;
@@ -696,8 +705,8 @@ public class HackingDAO implements HackingService {
 	public User createUser(String name, int firewall, int infosec, int dur) {
 		User user = new User(name, firewall,infosec, dur);
 		final String newUser = "INSERT INTO " + USERS_TABLE
-							 + " (name, firewall, infosec, dur) "
-							 + "VALUES (?,?,?,?)";
+							 + " (name, firewall, infosec, durability, wounds, damage, armor) "
+							 + "VALUES (?,?,?,?,0,0,0)";
 		Connection 		  connection 	= null;
 		PreparedStatement statement		= null;
 		ResultSet		  generatedKeys = null;
@@ -744,22 +753,24 @@ public class HackingDAO implements HackingService {
 		Connection 		  connection    = null;
 		PreparedStatement statement     = null;
 		String updateUser = "UPDATE " + USERS_TABLE + " SET "
-						  + "id = ?, "
 						  + "name = ?, "
 						  + "durability = ?, "
 						  + "wounds = ?, "
 						  + "damage = ?, "
-						  + "armor = ?";
+						  + "armor = ? "
+						  + "WHERE id = ?";
 		try {
 			connection = DBConnection.getInstance().getConnection();
 			statement = connection.prepareStatement(updateUser);
 			
-			statement.setInt(1, user.getID());
-			statement.setString(2, user.getName());
-			statement.setInt(3, user.getDurability());
-			statement.setInt(4, user.getWounds());
-			statement.setInt(5, user.getDamage());
-			statement.setInt(6, user.getArmor());
+			
+			statement.setString(1, user.getName());
+			statement.setInt(2, user.getDurability());
+			statement.setInt(3, user.getWounds());
+			statement.setInt(4, user.getDamage());
+			statement.setInt(5, user.getArmor());
+			statement.setInt(6, user.getID());
+			
 			statement.executeUpdate();
 			
 		} catch(SQLException e) {
@@ -790,6 +801,16 @@ public class HackingDAO implements HackingService {
 			statement = connection.prepareStatement(getUser);
 			statement.setInt(1, id);
 			resSet = statement.executeQuery();
+			
+			if (resSet.next()) {
+				user = new User(
+						resSet.getInt("id"),
+						resSet.getString("name"),
+						resSet.getInt("firewall"),
+						resSet.getInt("infosec"),
+						resSet.getInt("durability") );
+			}
+			
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} finally {

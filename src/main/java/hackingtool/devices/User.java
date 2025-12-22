@@ -25,6 +25,9 @@ public class User implements MeshCombatant{
         this.durability  = dur;
         this.woundThresh = dur/5;
         this.deathRating = dur*2;
+        this.wounds = 0;
+        this.damage = 0;
+        this.armor = 0;
     }
     
     public User(int id, String name, int firewall, int infosec, int dur){ // constructor
@@ -58,7 +61,7 @@ public class User implements MeshCombatant{
     }
 	
     public int getFirewall(){
-        return firewall;
+        return firewall + woundModifier();
     }
     
     public void setInfosec(int infosec){
@@ -66,7 +69,7 @@ public class User implements MeshCombatant{
     }
     
     public int getInfosec(){
-        return infosec;
+        return infosec + woundModifier();
     }
     
 	public int getDurability() {
