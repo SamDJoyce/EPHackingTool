@@ -61,7 +61,7 @@ public class User implements MeshCombatant{
     }
 	
     public int getFirewall(){
-        return firewall + woundModifier();
+        return firewall;
     }
     
     public void setInfosec(int infosec){
@@ -69,7 +69,7 @@ public class User implements MeshCombatant{
     }
     
     public int getInfosec(){
-        return infosec + woundModifier();
+        return infosec;
     }
     
 	public int getDurability() {

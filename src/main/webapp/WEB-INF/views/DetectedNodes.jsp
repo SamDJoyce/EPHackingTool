@@ -43,7 +43,7 @@
 			%>
 				<tr>
 					<td><a href='Hacking?targetID=<%= node.getID() %>&hackerID=<%= user.getID() %>' ><%= node.getName() %></a></td>
-					<td><%= hasAccount ? "Present" : "No account" %></td>
+					<td><%= hasAccount ? node.getAccount(user).getPriv().toString() : "No account"  %></td>
 					<td><%= alertString %></td>
 					<td><%= nodeStability %> </td>
 				</tr>

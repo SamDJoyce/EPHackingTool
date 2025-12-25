@@ -45,7 +45,7 @@ public interface HackingService {
 						  int 	  dur,
 						  Boolean defended,
 						  Types   dmgDice,
-						  int 	  numDmgDice);
+						  int 	  numDmgDice );
 	Account createAccount (Account account);
 	Account updateAccount(Account account);
 	Account getAccount(int id);
@@ -63,5 +63,9 @@ public interface HackingService {
 	User getUser(int id);
 	Boolean deleteUser(int id);
 
+	Boolean createLink(int source, int target);
+	Boolean deleteLink(int source, int target);
+	Boolean deleteLink(int linkID);
+	List<Integer> getLinkedNodes(int sourceID);
 	
 }

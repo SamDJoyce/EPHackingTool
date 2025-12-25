@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import hackingtool.dao.HackingDAO;
 import hackingtool.devices.Device;
@@ -24,6 +26,16 @@ import hackingtool.services.HackingService;
 public class HackingServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
+	private static final String MISSING_TARGET_HACKER = "Missing or invalid target/hacker";
+	private static final String NONE 		   = "none";
+	private static final String TEST 		   = "test";
+	private static final String EVENT_LOG 	   = "eventLog";
+	private static final String LINKED_NODES   = "linkedNodes";
+	private static final String HACKER 	       = "hacker";
+	private static final String TARGET 		   = "target";
+	private static final String SNIFFED 	   = "sniffed";
+	private static final String HACKER_ID 	   = "hackerID";
+	private static final String TARGET_ID 	   = "targetID";
 	private static final String LOCAL 		   = "local";
 	private static final String MESH_ATTACK    = "meshAttack";
 	private static final String SUBVERSION     = "subversion";
@@ -55,11 +67,13 @@ public class HackingServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String nodeParam = request.getParameter("targetID");
-		String hackerParam = request.getParameter("hackerID");
+		String nodeParam    = request.getParameter(TARGET_ID);
+		String hackerParam  = request.getParameter(HACKER_ID);
+		String sniffedParam = request.getParameter(SNIFFED);
 		
 		Hackable target = null;
 		User     hacker = null;
+		Boolean sniffed = false;
 		
 		if (nodeParam != null) {
 			int nodeID = Integer.parseInt(nodeParam);
@@ -69,15 +83,20 @@ public class HackingServlet extends HttpServlet {
 			int hackerID = Integer.parseInt(hackerParam);
 			hacker = hackServ.getUser(hackerID);
 		}
+		// Get sniffed
+		if (sniffedParam != null) {
+			sniffed = Boolean.valueOf(request.getParameter(SNIFFED)) ;
+		}
 		// Error
 	    if (target == null || hacker == null) {
 	        response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-	                "Missing or invalid target/hacker");
+	                MISSING_TARGET_HACKER);
 	        return;
 	    }
-		
-	    request.setAttribute("target", target);
-	    request.setAttribute("hacker", hacker);
+		request.setAttribute(SNIFFED, sniffed);
+	    request.setAttribute(TARGET, target);
+	    request.setAttribute(HACKER, hacker);
+	    request.setAttribute(LINKED_NODES, resolveLinkedNodes(target));
 		
 		request.getRequestDispatcher(HACKING_JSP)
 				.forward(request, response);
@@ -88,24 +107,24 @@ public class HackingServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String  action;
-		String  bruteForceParam;
-		Boolean bruteForce = false;
-		Boolean local;
-		int targetID;
-		int hackerID;
-		Hackable target = null;
-		User hacker = null;
-		
-		Hacking hack = new Hacking(target, hacker, bruteForce);
-		hack.addObserver(logger);
+		String  action			= null;
+		String  bruteForceParam = null;
+		Boolean bruteForce 		= false;
+		Boolean local 			= false;
+		Boolean sniffed 		= false;
+		int     targetID		= 0;
+		int 	hackerID		= 0;
+		Hackable target 		= null;
+		User 	hacker 			= null;
+		Hacking hack			= null;
+		List<Hackable> linkedNodes = null;
 		
 		
 		// Get action
 		if (request.getParameter(ACTION) != null) {
 			action = request.getParameter(ACTION);
 		} else {
-			action = "none";
+			action = NONE;
 		}
 		// get brute force
 		if (request.getParameter(BRUTE_FORCE) != null) {
@@ -113,15 +132,24 @@ public class HackingServlet extends HttpServlet {
 			bruteForce = Boolean.valueOf(bruteForceParam);
 		} 
 		// get target
-		if (request.getParameter("targetID") != null) {
-			targetID = Integer.parseInt(request.getParameter("targetID"));
+		if (request.getParameter(TARGET_ID) != null) {
+			targetID = Integer.parseInt(request.getParameter(TARGET_ID));
 			target = hackServ.getNode(targetID);
+			// get Linked Nodes
+			linkedNodes = resolveLinkedNodes(target);
 		}
 		// Get hacker
-		if (request.getParameter("hackerID") != null) {
-			hackerID = Integer.parseInt(request.getParameter("hackerID"));
+		if (request.getParameter(HACKER_ID) != null) {
+			hackerID = Integer.parseInt(request.getParameter(HACKER_ID));
 			hacker = hackServ.getUser(hackerID);
 		}
+		// Get sniffed
+		if (request.getAttribute(SNIFFED) != null) {
+			sniffed = Boolean.valueOf(request.getParameter(SNIFFED)) ;
+		}
+		
+		hack = new Hacking(target, hacker, bruteForce);
+		hack.addObserver(logger);
 		
 		// Check action
 		if (action != null && !action.isEmpty()) {
@@ -143,12 +171,24 @@ public class HackingServlet extends HttpServlet {
 			}
 		}
 		
-		request.setAttribute("test", hack.getTest());
-		request.setAttribute("eventLog", logger.getEventLog());
-		request.setAttribute("target", hack.getTarget());
-		request.setAttribute("hacker", hack.getHacker());
+		request.setAttribute(TEST, hack.getTest());
+		request.setAttribute(EVENT_LOG, logger.getEventLog());
+		request.setAttribute(TARGET, hack.getTarget());
+		request.setAttribute(HACKER, hack.getHacker());
+		request.setAttribute(LINKED_NODES, linkedNodes);
+		request.setAttribute(SNIFFED, sniffed);
 		request.getRequestDispatcher(HACKING_JSP)
 	       .forward(request, response);
+	}
+	
+	private List<Hackable> resolveLinkedNodes(Hackable target) {
+	    List<Hackable> linkedNodes = new ArrayList<>();
+	    if (target != null && target.getLinkedNodes() != null) {
+	        for (Integer id : target.getLinkedNodes()) {
+	        	linkedNodes.add(hackServ.getNode(id));
+	        }
+	    }
+	    return linkedNodes;
 	}
 
 }

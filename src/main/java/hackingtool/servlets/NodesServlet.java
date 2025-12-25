@@ -29,15 +29,19 @@ public class NodesServlet extends HttpServlet {
      */
     public NodesServlet() {
         super();
-//        for (int i = 0; i < 10; i++) {
+//        createTestDevices();
+//        hackServ.createUser("Test User", 80, 80, 25);
+//    	hackServ.createLink(8, 5);
+    }
+    
+    private void createTestDevices() {
+//    	for (int i = 0; i < 10; i++) {
 //        	Device device = DeviceFactory.get("mote");
 //        	device.setName(device.getName() + "-" + i);
 //        	if (i == 5) device.setVisible(false);
 //        	hackServ.createNode(device);
-//        	
 //        }
-//        
-//        hackServ.createUser("Test User", 80, 80, 25);
+
     }
 
 	/**

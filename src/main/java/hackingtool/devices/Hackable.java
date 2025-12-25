@@ -37,6 +37,7 @@ public interface Hackable {
 	String getAlertString();
 	void increaseAlert();
 	void reduceAlert();
+	
 	Boolean isMindware();
 	Boolean isDefended();
 	Boolean isVisible();
@@ -44,4 +45,10 @@ public interface Hackable {
 	
 	OS getOS();
 	String getStability();
+	
+	List<Integer> getLinkedNodes();
+	void setLinkedNodes(List<Integer> linkedNodes);
+	void addLinkedNode(Integer nodeID);
+	void removeLinkedNode(Integer nodeID);
+	Boolean linksToNode(Integer nodeID);
 }

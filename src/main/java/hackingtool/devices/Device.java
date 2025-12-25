@@ -13,7 +13,7 @@ public class Device implements Hackable{
     private OS 	    os;
     private Alerts  alert;
     private List<Account> accounts;
-    private List<Hackable> linkedNodes;
+    private List<Integer> linkedNodes;
     
     //private Device       masterDevice;
     //private List<Device> slavedDevices;
@@ -31,7 +31,7 @@ public class Device implements Hackable{
     	private OS      os;
         private Alerts  alert;
         private List<Account> accounts;
-        private List<Hackable> linkedNodes;
+        private List<Integer> linkedNodes;
     	
         public Builder setID(int id) {
         	this.id = id;
@@ -66,7 +66,7 @@ public class Device implements Hackable{
 			this.accounts = accounts;
 			return this;
 		}
-		public Builder setLinkedNodes(List<Hackable> nodes) {
+		public Builder setLinkedNodes(List<Integer> nodes) {
 			this.linkedNodes = nodes;
 			return this;
 		}
@@ -260,6 +260,25 @@ public class Device implements Hackable{
     public String getStability() {
     	return os.getStability();
     }
+    
+    public List<Integer> getLinkedNodes(){
+    	return linkedNodes;
+    }
+    
+    public void setLinkedNodes(List<Integer> linkedNodes) {
+    	this.linkedNodes = linkedNodes;
+    }
+    
+    public void addLinkedNode(Integer nodeID) {
+    	linkedNodes.add(nodeID);
+    }
+    
+	public void removeLinkedNode(Integer nodeID) {
+		linkedNodes.remove(nodeID);
+	}
 	
+	public Boolean linksToNode(Integer nodeID) {
+		return linkedNodes.contains(nodeID);
+	}
 
 }

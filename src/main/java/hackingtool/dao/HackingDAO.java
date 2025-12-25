@@ -24,6 +24,7 @@ public class HackingDAO implements HackingService {
 	private static final String OS_TABLE 		= "os";
 	private static final String USERS_TABLE 	= "users";
 	private static final String ACCOUNTS_TABLE 	= "accounts";
+	private static final String LINKS_TABLE		= "links";
 	
 	public HackingDAO() {
 	}
@@ -190,6 +191,7 @@ public class HackingDAO implements HackingService {
 									.setOS(getOS(id))
 									.setAlert(Alerts.fromLevel(resSet.getInt("alert")))
 									.setAccounts(getAllNodeAccounts(id))
+									.setLinkedNodes(getLinkedNodes(id))
 									.build();
 			}
 			//
@@ -216,10 +218,11 @@ public class HackingDAO implements HackingService {
 		
 		try (Connection connection = DBConnection.getInstance().getConnection();
 			PreparedStatement statement = connection.prepareStatement(deleteNode)) {
-			if (deleteOS(id)) {
-			statement.setInt(1, id);
-	        statement.executeUpdate();
-	        return true;
+			// Delete the system OS and the node's links before deleting the node
+			if (deleteOS(id) && deleteLinks(id)) {
+				statement.setInt(1, id);
+		        statement.executeUpdate();
+		        return true;
 			}
 			return false;
 	    } catch (SQLException e) {
@@ -250,6 +253,7 @@ public class HackingDAO implements HackingService {
 									.setOS(getOS(resSet.getInt("id")))
 									.setAlert(Alerts.fromLevel(resSet.getInt("alert")))
 									.setAccounts(getAllNodeAccounts(resSet.getInt("id")))
+									.setLinkedNodes(getLinkedNodes(resSet.getInt("id")))
 									.build());
 			}
 			
@@ -331,6 +335,8 @@ public class HackingDAO implements HackingService {
 							resSet.getInt("id"),
 							resSet.getString("type"),
 							resSet.getInt("durability"),
+							resSet.getInt("wounds"),
+							resSet.getInt("damage"),
 							resSet.getInt("armor"),
 							resSet.getInt("firewall"),
 							resSet.getInt("infosec"),
@@ -843,5 +849,126 @@ public class HackingDAO implements HackingService {
 		}
 		
 	}
-
+	
+	// Node Links services
+	public Boolean createLink(int source, int target) {
+		String createLink = "INSERT INTO " + LINKS_TABLE
+						  + " (source, target) "
+						  + "VALUES (?,?)";
+		Connection 		  connection 	= null;
+		PreparedStatement statement		= null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			// Create the linke from source to target
+			statement = connection.prepareStatement(createLink);
+			statement.setInt	(1, source);
+			statement.setInt	(2, target);
+			statement.executeUpdate();
+			// Then create the mirror connection from target to source
+			statement = connection.prepareStatement(createLink);
+			statement.setInt	(1, target);
+			statement.setInt	(2, source);
+			statement.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	public Boolean deleteLink(int linkID) {
+		String deleteLink = "DELETE FROM " + LINKS_TABLE + " WHERE id = ?";
+		try (Connection connection = DBConnection.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(deleteLink)) {
+				statement.setInt(1, linkID);
+		        statement.executeUpdate();
+		        return true;
+			
+		    } catch (SQLException e) {
+			        e.printStackTrace();
+			        return false;
+			}
+	}
+	
+	public Boolean deleteLink(int source, int target) {
+		String deleteLink = "DELETE FROM " + LINKS_TABLE 
+						  + " WHERE source = ? AND target = ?";
+		PreparedStatement statement = null;
+		try (Connection connection = DBConnection.getInstance().getConnection()) {
+			
+			statement = connection.prepareStatement(deleteLink);
+				statement.setInt(1, source);
+				statement.setInt(2, target);
+		        statement.executeUpdate();
+			        
+	        statement = connection.prepareStatement(deleteLink) ;
+				statement.setInt(1, target);
+				statement.setInt(2, source);
+		        statement.executeUpdate();
+	        return true;
+			
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+		}
+	}
+	
+	public Boolean deleteLinks(int source) {
+		String deleteLink = "DELETE FROM " + LINKS_TABLE 
+						  + " WHERE source = ? OR target = ?";
+		try (Connection connection = DBConnection.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(deleteLink)) {
+				statement.setInt(1, source);
+				statement.setInt(2, source);
+		        statement.executeUpdate();
+		        return true;
+			
+		    } catch (SQLException e) {
+			        e.printStackTrace();
+			        return false;
+			}
+	}
+	
+	public List<Integer> getLinkedNodes(int sourceID){
+		List<Integer> linkedNodes = new ArrayList<>();
+		String getNodes = "SELECT * FROM " + LINKS_TABLE + " WHERE source = ?";
+		Connection         connection = null;
+		PreparedStatement  statement  = null;
+		ResultSet  		   resSet     = null;
+		
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(getNodes);
+			statement.setInt(1, sourceID);
+			resSet = statement.executeQuery();
+			
+			while (resSet.next()) {
+				linkedNodes.add(resSet.getInt("target"));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (resSet != null) {
+					resSet.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return linkedNodes;
+	}
 }

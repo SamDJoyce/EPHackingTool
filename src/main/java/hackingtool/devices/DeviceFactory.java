@@ -57,6 +57,30 @@ public class DeviceFactory {
 		}
 	}
 	
+	public static Device get(String type, String name) {
+		if (MOTE.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+							 .setSystemName(name)
+							 .setMindware(false)
+							 .setOS(OSFactory.get(type))
+							 .build();
+		} else if (HOST.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+							 .setSystemName(name)
+							 .setMindware(false)
+							 .setOS(OSFactory.get(type))
+							 .build();
+		} else if (SERVER.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+							 .setSystemName(name)
+							 .setMindware(false)
+							 .setOS(OSFactory.get(type))
+							 .build();
+		} else {
+			return null;
+		}
+	}
+	
 	public static Device getRandom(String type) {
 		
 		if (MOTE.equalsIgnoreCase(type)) {
@@ -74,6 +98,31 @@ public class DeviceFactory {
 		} else if (SERVER.equalsIgnoreCase(type)) {
 			return new Device.Builder()
 						 	 .setSystemName(type)
+							 .setMindware(false)
+							 .setOS(OSFactory.getRandom(type))
+							 .build();
+		} else {
+			return null;
+		}
+	}
+	
+	public static Device getRandom(String type, String name) {
+		
+		if (MOTE.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+							 .setSystemName(name)
+							 .setMindware(false)
+							 .setOS(OSFactory.getRandom(type))
+							 .build();
+		} else if (HOST.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+					 		 .setSystemName(name)
+							 .setMindware(false)
+							 .setOS(OSFactory.getRandom(type))
+							 .build();
+		} else if (SERVER.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+						 	 .setSystemName(name)
 							 .setMindware(false)
 							 .setOS(OSFactory.getRandom(type))
 							 .build();

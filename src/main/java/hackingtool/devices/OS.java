@@ -54,6 +54,29 @@ public class OS implements MeshCombatant{
 		this.defended = defended;
 		
 	}
+	
+	public OS( 	int id, 
+				String type, 
+				int durability,
+				int wounds,
+				int damage,
+				int armor, 
+				int firewall, 
+				int infosec, 
+				Boolean defended) {
+		this.id = id;
+		this.type = type;
+		this.durability = durability;
+		this.woundThresh = durability/5;
+		this.deathRating = durability*2;
+		this.damage = damage;
+		this.wounds = wounds;
+		this.armor = armor;
+		this.firewall = firewall;
+		this.infosec = infosec;
+		this.defended = defended;
+	
+}
     
 
 	public int getID() {
@@ -97,7 +120,7 @@ public class OS implements MeshCombatant{
 	}
 
     public int getFirewall() {
-		return firewall + woundModifier();
+		return firewall;
 	}
 
 	public void setFirewall(int firewall) {
@@ -105,7 +128,7 @@ public class OS implements MeshCombatant{
 	}
 
 	public int getInfosec() {
-		return infosec + woundModifier();
+		return infosec;
 	}
 
 	public void setInfosec(int infosec) {

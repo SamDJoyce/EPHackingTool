@@ -466,8 +466,7 @@ public class Hacking implements Observable{
 			modifier += MINDWARE_MOD;
 		}
 		// -10 modifier for each wound the user has
-		// Is this already done in user?
-		//modifier += hacker.getWounds() * -10;
+		modifier += hacker.getWounds() * -10;
 		
 		return modifier;
 	}

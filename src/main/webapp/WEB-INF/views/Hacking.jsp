@@ -7,6 +7,7 @@
     import="hackingtool.logging.Event"
     import="java.util.Deque"
     import="java.util.ArrayDeque"
+    import="java.util.List"
   %>
 <!DOCTYPE html>
 <html>
@@ -15,7 +16,9 @@
 		final Hackable target = (Hackable) request.getAttribute("target");
 		final Account account = target.getAccount(hacker);
 		final Tests test 	  = (Tests) request.getAttribute("test");
+		final Boolean sniffed = (Boolean) request.getAttribute("sniffed");
 		final Deque<Event> eventLog = (ArrayDeque<Event>) request.getAttribute("eventLog");
+		final List<Hackable> linkedNodes = (List<Hackable>) request.getAttribute("linkedNodes");
 	%>
 <head>
 	<meta charset="UTF-8">
@@ -43,42 +46,82 @@
 			</tr>			
 		</table>
 		<!-- Action buttons -->
+		<!-- Intrusion -->
 		<form method='post' action='Hacking'>
 			<input type='hidden' name='action'value='intrusion'>
 			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
 			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
+			<input type='hidden' name='sniffed' value='<%= sniffed %>'>
 			<input type='submit' value='Perform Intrusion'>
 			<input type='checkbox' name='bruteForce' value='true' id='bfCheck'>
 			<label for='bfCheck'>Brute force</label>
 		</form>
+		<% 
+		if (!sniffed) {
+		%>
+		<!-- Sniff Traffic -->
+		<form method='get' action='Hacking'>
+			<input type='hidden' name='sniffed' value='true'>
+			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
+			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
+			<input type='submit' value='Sniff Connections'>
+		</form>
+		<%
+		}	
+		%>
 		<!-- Mesh Attack -->
 		<form method='post' action='Hacking'>
 			<input type='hidden' name='action' value='meshAttack'>
+			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
+			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
+			<input type='hidden' name='sniffed' value='<%= sniffed %>'>
 			<input type='submit' value='Mesh Attack'>
 			<% if (account != null) { %>
 				<input type='checkbox' id='local' name='local' value='true' >
 				<label for='local'>Local Attack</label>
+			<%} else { %>
+				<input type='hidden' name='local' value='false'>
 			<%} %>
-			
 		</form>
 		<% 	
-		if (account != null){
+		if (account != null) {
 		%>
 			<!-- These tests are only possible with an account -->
 			<!-- Improve status -->
 			<form method='post' action='Hacking'>
 				<input type='hidden' name='action'value='improveStatus'>
+				<input type='hidden' name='targetID' value='<%= target.getID() %>'>
+				<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
+				<input type='hidden' name='sniffed' value='<%= sniffed %>'>
 				<input type='submit' value='Improve Status'>
 			</form>
 			<!-- Subversion -->
 			<form method='post' action='Hacking'>
 				<input type='hidden' name='action' value='subversion'>
+				<input type='hidden' name='targetID' value='<%= target.getID() %>'>
+				<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
+				<input type='hidden' name='sniffed' value='<%= sniffed %>'>	
 				<input type='submit' value='Subvert System'>
 			</form>
-			
+		<!-- Linked nodes list -->
 		<%		
 		}
-		%>
+		if (linkedNodes != null && !linkedNodes.isEmpty() && sniffed) {
+			%>
+				<h3>Linked Nodes</h3>
+				<div class="linked-nodes">
+			<%
+			    for (Hackable node : linkedNodes) {
+			%>
+			    <a class="node-card" href="Hacking?targetID=<%= node.getID() %>&hackerID=<%= hacker.getID() %>">
+			        <div class="node-name"><%= node.getName() %></div>
+			        <div class="node-meta">Linked System</div>
+			    </a>
+			<%
+				}
+			}
+			%>
+			</div>
 	</div>
 	<hr>
 	<div id="hacker">
