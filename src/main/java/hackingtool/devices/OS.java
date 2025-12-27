@@ -75,7 +75,25 @@ public class OS implements MeshCombatant{
 		this.firewall = firewall;
 		this.infosec = infosec;
 		this.defended = defended;
-	
+	}
+	public OS(
+			String type, 
+			int durability,
+			int armor, 
+			int firewall, 
+			int infosec, 
+			Boolean defended) {
+	this.id = 0;
+	this.type = type;
+	this.durability = durability;
+	this.woundThresh = durability/5;
+	this.deathRating = durability*2;
+	this.damage = 0;
+	this.wounds = 0;
+	this.armor = armor;
+	this.firewall = firewall;
+	this.infosec = infosec;
+	this.defended = defended;
 }
     
 

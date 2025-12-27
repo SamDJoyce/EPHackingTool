@@ -49,7 +49,8 @@ public interface HackingService {
 	Account createAccount (Account account);
 	Account updateAccount(Account account);
 	Account getAccount(int id);
-	Boolean 	deleteAccount(int id);
+	Boolean deleteAccount(int id);
+	Boolean deleteAccountsByDevice(int deviceID);
 	List<Account> getAllNodeAccounts(int nodeID);
 	
 	
@@ -61,6 +62,7 @@ public interface HackingService {
 					int dur);
 	User updateUser(User user);
 	User getUser(int id);
+	List<User> getAllUsers();
 	Boolean deleteUser(int id);
 
 	Boolean createLink(int source, int target);

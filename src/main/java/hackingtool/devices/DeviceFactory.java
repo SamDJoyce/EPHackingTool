@@ -131,5 +131,32 @@ public class DeviceFactory {
 		}
 	}
 	
+	public static Device getRandomHidden(String type, String name) {
+		
+		if (MOTE.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+							 .setSystemName(name)
+							 .setMindware(false)
+							 .setVisible(false)
+							 .setOS(OSFactory.getRandom(type))
+							 .build();
+		} else if (HOST.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+					 		 .setSystemName(name)
+							 .setMindware(false)
+							 .setVisible(false)
+							 .setOS(OSFactory.getRandom(type))
+							 .build();
+		} else if (SERVER.equalsIgnoreCase(type)) {
+			return new Device.Builder()
+						 	 .setSystemName(name)
+							 .setMindware(false)
+							 .setVisible(false)
+							 .setOS(OSFactory.getRandom(type))
+							 .build();
+		} else {
+			return null;
+		}
+	}
 
 }

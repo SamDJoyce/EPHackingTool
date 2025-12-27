@@ -289,7 +289,9 @@ public class Hacking implements Observable{
 		}
 		
 		// Update the account in the DB
-		hackServ.updateAccount(target.getAccount(hacker));
+		if (target.getAccount(hacker) != null) {
+			hackServ.updateAccount(target.getAccount(hacker));
+		}
 		// Update the target in the DB
 		hackServ.updateNode(target);
 		// Record the event with the event log

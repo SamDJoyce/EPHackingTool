@@ -22,13 +22,14 @@ h1, h2 {
     letter-spacing: 0.08em;
     color: #6fd2ff;
     margin-bottom: 0.5em;
+    margin-left: 20px;
 }
 
 h1 {
     font-size: 1.6em;
     border-bottom: 1px solid #1e3a4a;
     padding-bottom: 0.3em;
-    margin-left: 20px;
+    
 }
 
 h2 {
@@ -146,7 +147,7 @@ body::after {
     opacity: 0.15;
 }
 /* -------- Linked Nodes -------- */
-.linked-nodes {
+.linked-nodes, .node-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 0.8em;
