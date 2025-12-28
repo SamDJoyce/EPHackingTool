@@ -10,6 +10,8 @@
 </head>
 
 <body>
+	<h1>Create a Node</h1>
+	<p><a href='GMScreen'>&larr; back to GM Screen</a></p><br>
 	<!-- Quick Create -->
 	<!-- pick system type, generate new random system of that type -->
 	<div id='quickCreate' class='create'>
