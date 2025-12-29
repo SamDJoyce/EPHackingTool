@@ -16,7 +16,9 @@ public interface Hackable {
 	int getInfosec();
 	
 	int getDamage();
+	void setDamage(int damage);
 	int getWounds();
+	void setWounds(int wounds);
 	
 	int getDurability();
 	
@@ -39,7 +41,9 @@ public interface Hackable {
 	void reduceAlert();
 	
 	Boolean isMindware();
+	void setMindware(Boolean mindware);
 	Boolean isDefended();
+	void setDefended(Boolean defended);
 	Boolean isVisible();
 	void setVisible(Boolean visible);
 	

@@ -34,6 +34,15 @@ public enum IntruderStatus {
 			}
 			
 		}
-		return SPOTTED;
+		return COVERT;
+	}
+	
+	public static IntruderStatus fromString(String status) {
+		for (IntruderStatus i : IntruderStatus.values()) {
+			if (i.toString().equalsIgnoreCase(status)) {
+				return i;
+			}
+		}
+		return COVERT;
 	}
 }

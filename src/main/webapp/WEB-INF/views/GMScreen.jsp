@@ -48,7 +48,7 @@
         if (nodes != null && !nodes.isEmpty()) {
             for (Hackable node : nodes) {
     %>
-        <a class="node-card" href='Hacking?hackerID=1&targetID=<%= node.getID() %>' ><div class="node-card">
+        <a class="node-card" href='GMControlNode?nodeID=<%= node.getID() %>' ><div class="node-card">
             <div class="node-name"><%= node.getName() %></div>
 
             <div class="node-meta">

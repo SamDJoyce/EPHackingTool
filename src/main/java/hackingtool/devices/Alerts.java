@@ -33,7 +33,7 @@ public enum Alerts {
 	
 	public static Alerts fromString(String alert) {
 		for (Alerts a : Alerts.values()) {
-			if (a.description == alert) {
+			if (a.description.equalsIgnoreCase(alert)) {
 				return a;
 			}
 		}

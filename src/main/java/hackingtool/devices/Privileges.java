@@ -24,5 +24,12 @@ public enum Privileges {
 		}
 		return PUBLIC;
 	}
-	
+	public static Privileges fromString(String priv) {
+		for (Privileges p : Privileges.values()) {
+			if (p.toString().equalsIgnoreCase(priv)) {
+				return p;
+			}
+		}
+		return PUBLIC;
+	}
 }

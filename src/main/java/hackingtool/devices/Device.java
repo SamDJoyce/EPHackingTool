@@ -184,7 +184,6 @@ public class Device implements Hackable{
     public int getInfosec(){
         return os.getInfosec();
     }
-
     public void setAlert(Alerts alert){
         this.alert = alert;
     }
@@ -231,8 +230,16 @@ public class Device implements Hackable{
 		return os.getDamage();
 	}
 	
+    public void setDamage(int damage) {
+    	os.setDamage(damage);
+    }
+	
 	public int getWounds() {
 		return os.getWounds();
+	}
+	
+	public void setWounds(int wounds) {
+		os.setWounds(wounds);
 	}
 	
 	public int getDurability() {
@@ -243,10 +250,20 @@ public class Device implements Hackable{
 	public Boolean isMindware() {
 		return mindware;
 	}
+	
+	@Override
+	public void setMindware (Boolean mindware) {
+		this.mindware = mindware;
+	}
 
 	@Override
 	public Boolean isDefended() {
 		return defended;
+	}
+	
+	@Override
+	public void setDefended(Boolean defended) {
+		this.defended = defended;
 	}
 
     public Boolean isVisible() {
