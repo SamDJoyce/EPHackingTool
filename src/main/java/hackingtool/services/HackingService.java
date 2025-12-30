@@ -51,7 +51,9 @@ public interface HackingService {
 	Account getAccount(int id);
 	Boolean deleteAccount(int id);
 	Boolean deleteAccountsByDevice(int deviceID);
+	Boolean deleteAccountsByUser(int userID);
 	List<Account> getAllNodeAccounts(int nodeID);
+	
 	
 	
 	// User Services

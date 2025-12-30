@@ -18,10 +18,10 @@ import hackingtool.logging.Event;
 // test
 public class Hacking implements Observable{
 	
-	private static final int ACCOUNT_DUR = 25;
-	private static final int 	BF_MOD		   = -30;
-	private static final int    HIDDEN_MOD	   = 10;
-	private static final int    MINDWARE_MOD   = -30;
+	private static final int ACCOUNT_DUR 	   = 25;
+	private static final int BF_MOD		       = -30;
+	private static final int HIDDEN_MOD	       = 10;
+	private static final int MINDWARE_MOD      = -30;
 	private static final int ACTIVE_ALERT_MOD  = -10;
 	
 	private static final String SUP_SUCC 	   = "Superior Success";

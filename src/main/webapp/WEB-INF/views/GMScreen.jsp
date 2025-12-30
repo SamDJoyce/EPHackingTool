@@ -23,7 +23,7 @@
 <h1>GM Screen</h1>
 
 <!-- ================= NODES ================= -->
-<div id="nodes">
+<div id="nodes" class='container'>
     <!-- ===== Action Bar ===== -->
     <div class="gm-actions">
         <form action="CreateNode" method="get" style="display:inline;">
@@ -39,7 +39,7 @@
             <input type="hidden" name="action" value="deleteAllNodes">
             <button type="submit" class="danger">Delete All Nodes</button>
         </form>
-    </div><hr>
+    </div><br><br>
 
     <!-- ===== Node Cards ===== -->
     <h2>Mesh Nodes</h2>
@@ -77,26 +77,47 @@
 </div>
 
 <!-- ================= USERS ================= -->
-<div id="users">
+<div id="users" class='container'>
     <h2>Users</h2>
 
-    <ul class="user-list">
+    <table id='usersTable'>
+    	<!-- Headers -->
+    	<tr><th>Name</th><th>Firewall</th><th>Infosec</th><th>Durability</th><th>Actions</th></tr>
     <%
         if (users != null && !users.isEmpty()) {
             for (User user : users) {
-    %>
-        <li>
-            <strong><%= user.getName() %></strong>
-        </li>
+    %> <!-- Existing User rows -->
+		        <tr>
+		        	<td><%= user.getName() %></td>
+		        	<td><%= user.getFirewall() %></td>
+		        	<td><%= user.getInfosec() %></td>
+		        	<td><%= user.getDurability() %></td>
+		        	<td><form action='GMScreen' method='post'>
+		        		<input type='hidden' name='action' value='deleteUser'>
+		        		<input type='hidden' name='userID' value='<%= user.getID() %>'>
+		        		<input type='submit' value='Delete User'>
+		        	</form></td>
+		        </tr>
     <%
             }
-        } else {
-    %>
-        <li class="empty">No users found.</li>
-    <%
         }
-    %>
-    </ul>
+    %> <!-- New User row -->
+		<tr>
+			<!-- Name -->
+			<td><input type='text' id='userName' name='userName' form='newUser'></td>
+			<!-- Firewall -->
+			<td><input type='number' id='firewall' name='firewall' form='newUser' min='0' style='width: 40px'></td>
+			<!-- Infosec -->
+			<td><input type='number' id='infosec' name='infosec' form='newUser' min='0' style='width: 40px'></td>
+			<!-- Durability -->
+			<td><input type='number' id='durability' name='durability' form='newUser' min='0' style='width: 40px'></td>
+			<!-- Action Buttons -->
+			<td><form action='GMScreen' method='post' id='newUser'>
+				<input type='hidden' name='action' value='createUser'>
+				<input type='submit' value='Create User'>
+			</form></td>
+		</tr>
+    </table>
 </div>
 
 </body>

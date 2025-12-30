@@ -37,12 +37,13 @@ h2 {
 }
 
 /* -------- Layout Containers -------- */
-#target, #hacker {
+
+.container {
     background: linear-gradient(180deg, #0e141c, #0a0f15);
     border: 1px solid #1e3a4a;
     padding: 1em;
     margin: 1em 0;
-    box-shadow: 0 0 12px rgba(80, 200, 255, 0.08);
+    box-shadow: 0 0 6px rgba(80, 200, 255, 0.08);
 }
 
 /* -------- Tables -------- */
@@ -82,7 +83,7 @@ form {
     margin: 0.5em 0;
 }
 
-input[type="submit"] {
+input[type="submit"], input[type="button"], button {
     background: linear-gradient(180deg, #112433, #0c1a26);
     border: 1px solid #2c6f8f;
     color: #bfeaff;
@@ -93,7 +94,7 @@ input[type="submit"] {
     cursor: pointer;
 }
 
-input[type="submit"]:hover {
+input[type="submit"]:hover, input[type="button"]:hover, button:hover {
     background: #14324a;
     box-shadow: 0 0 8px rgba(120, 220, 255, 0.4);
 }
@@ -124,12 +125,6 @@ p {
     color: #b8dfff;
 }
 
-/* Log block feel (optional future wrapper) */
-.log-entry {
-    padding-left: 0.6em;
-    border-left: 2px solid #2c6f8f;
-    margin-bottom: 0.4em;
-}
 
 /* -------- Subtle System Effects -------- */
 body::after {
@@ -182,5 +177,12 @@ body::after {
     margin-top: 0.3em;
     color: #6fd2ff;
     opacity: 0.8;
+}
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.5em;
+    margin-top: 0.6em;
 }
 

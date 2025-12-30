@@ -682,6 +682,25 @@ public class HackingDAO implements HackingService {
 		}
 		
 	}
+	
+	@Override
+	public Boolean deleteAccountsByUser(int userID) {
+		String deleteAccounts = "DELETE FROM " + ACCOUNTS_TABLE + " WHERE userID = ?";
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			connection = DBConnection.getInstance().getConnection();
+			statement = connection.prepareStatement(deleteAccounts);
+			statement.setInt(1, userID);
+	        statement.executeUpdate();
+	        return true;
+			
+	    } catch (SQLException e) {
+		        e.printStackTrace();
+		        return false;
+		}
+		
+	}
 
 	@Override
 	public List<Account> getAllNodeAccounts(int nodeID) {
@@ -898,17 +917,20 @@ public class HackingDAO implements HackingService {
 	@Override
 	public Boolean deleteUser(int id) {
 		String deleteUser = "DELETE FROM " + USERS_TABLE + " WHERE id = ?";
-		
-		try (Connection connection = DBConnection.getInstance().getConnection();
-			PreparedStatement statement = connection.prepareStatement(deleteUser)) {
-			statement.setInt(1, id);
-	        statement.executeUpdate();
-	        return true;
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			if (deleteAccountsByUser(id)) {
+				connection = DBConnection.getInstance().getConnection();
+				statement = connection.prepareStatement(deleteUser);
+				statement.setInt(1, id);
+		        statement.executeUpdate();
+		        return true;
+			}
 	    } catch (SQLException e) {
 		        e.printStackTrace();
-		        return false;
 		}
-		
+		return false;
 	}
 	
 	// Node Links services

@@ -10,7 +10,6 @@ import java.util.List;
 
 import hackingtool.dao.HackingDAO;
 import hackingtool.devices.Hackable;
-import hackingtool.devices.NetworkFactory;
 import hackingtool.devices.User;
 import hackingtool.services.HackingService;
 
@@ -37,7 +36,7 @@ public class GMScreenServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		List<Hackable> nodes = hackServ.getAllNodes();
-		List<User> users = hackServ.getAllUsers();
+		List<User>     users = hackServ.getAllUsers();
 		
 		request.setAttribute("users", users);
 		request.setAttribute("nodes", nodes);
@@ -52,6 +51,7 @@ public class GMScreenServlet extends HttpServlet {
 		String action = request.getParameter("action");
 		String idParam = request.getParameter("nodeID");
 		
+		
 		if (action != null) {
 			// Check action
 			if ("createNode".equalsIgnoreCase(action)) {
@@ -63,6 +63,30 @@ public class GMScreenServlet extends HttpServlet {
 				List<Hackable> nodes = hackServ.getAllNodes();
 				for (Hackable node : nodes) {
 					hackServ.deleteNode(node.getID());
+				}
+			} else if ("createUser".equalsIgnoreCase(action)) {
+				String userName   = request.getParameter("userName") != null ? request.getParameter("userName") : "";
+				String fwParam    = request.getParameter("firewall");
+				String infoParam  = request.getParameter("infosec");
+				String durParam   = request.getParameter("durability");
+				int	   firewall   = 0;
+				int	   infosec    = 0;
+				int    durability = 0;
+				
+				if (fwParam   != null
+			    &&  infoParam != null
+				&&  durParam  != null) {
+						firewall = Integer.parseInt(fwParam);
+						infosec = Integer.parseInt(infoParam);
+						durability = Integer.parseInt(durParam);
+						hackServ.createUser(userName, firewall, infosec, durability);
+				}
+			} else if ("deleteUser".equalsIgnoreCase(action)) {
+				String userIDParam = request.getParameter("userID");
+				int userID = 0;
+				if (userIDParam != null) {
+					userID = Integer.parseInt(userIDParam);
+					hackServ.deleteUser(userID);
 				}
 			}
 		}

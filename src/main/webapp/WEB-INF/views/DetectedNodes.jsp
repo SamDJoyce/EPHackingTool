@@ -21,7 +21,7 @@
 
 <body>
 	<h1>Detected Nodes</h1>
-	<div id='target'>
+	<div class='container'>
 		<table id='nodesTable'>
 			<!-- Headers -->
 			<tr> 

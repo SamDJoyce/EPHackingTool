@@ -30,7 +30,7 @@
 	<!-- Target System Information -->
 	<h1>Target Node: <%= target.getName() %> </h1>
 	<p><a href='Nodes'>&larr; back to Nodes List</a></p>
-	<div id="target">
+	<div id="target" class='container'>
 		<h2>Node</h2>
 		<table id="targetTable">
 			<!-- Headers -->
@@ -124,7 +124,7 @@
 			</div>
 	</div>
 	<hr>
-	<div id="hacker">
+	<div id="hacker" class='container'>
 		<h2>Hacker</h2>
 		<table>
 			<!-- Headers -->

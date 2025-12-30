@@ -42,6 +42,7 @@ public class GMControlNodeServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String idParam = request.getParameter("nodeID");
+		String action = request.getParameter("action");
 		Hackable node = null;
 		int nodeID = 0;
 	
@@ -49,6 +50,18 @@ public class GMControlNodeServlet extends HttpServlet {
 			nodeID = Integer.parseInt(idParam);
 			node = hackServ.getNode(nodeID);
 		}
+		
+		if (action != null) {
+			if ("beginReboot".equalsIgnoreCase(action)) {
+				// determine if mote, host, or server
+				// mote, host take 1d6 TURNS to shutdown and same to reboot
+				// serve takes 1d6 MINUTES to shutdown and same to reboot
+			} else if ("completeReboot".equalsIgnoreCase(action)) {
+				// Reset system and app damage and wounds
+				// Users have to log back in
+			}
+		}
+		
 		List<User> users = hackServ.getAllUsers();
 		request.setAttribute("users", users);
 		request.setAttribute("node", node);
@@ -81,7 +94,7 @@ public class GMControlNodeServlet extends HttpServlet {
 		Alerts  alert    = null;
 		Boolean mindware = false;
 		Boolean defended = false;
-		Boolean visible  = true;
+		Boolean visible  = false;
 		
 		// Update Account Fields
 		String accIDParam     = request.getParameter("accID");

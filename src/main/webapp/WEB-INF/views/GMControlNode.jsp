@@ -25,7 +25,8 @@
 	<h1>Control Node</h1>
 	<h2><%= node.getName() %></h2>
 	<p><a href='GMScreen'>&larr; back to GM Screen</a></p>
-	<hr>
+	<br>
+	<div id='nodeInfo' class='container'>
 	<!-- Stats bar w. firewall, infosec, OS -->
 	<div id='node'><h3>Node</h3>
 	<table id="nodeTable">
@@ -45,22 +46,32 @@
 				<td><input type='number' id='nodeWounds' name='nodeWounds' form='nodeForm' value="<%= node.getWounds() %>" style='width: 40px'> (<%= node.getWounds() %>)</td>
 			</tr>			
 	</table></div>
-		<div id='nodeControl'> <form action='GMControlNode' method='post' id='nodeForm'>	
-		<!-- Mindware toggle -->
-		<label for='mindware'>Running mindware? </label>
-		<input type='checkbox' id='mindware' name='mindware' value='true' <%= node.isMindware() ? "checked" : "" %>><br>
-		<!-- Defended toggle -->
-		<label for='defended'>Node is Defended? </label>
-		<input type='checkbox' id='defended' name='defended' value='true' <%= node.isDefended() ? "checked" : "" %>><br>
-		<!-- Visible toggle -->
-		<label for='visible'>Node is Visible? </label>
-		<input type='checkbox' id='visible' name='visible' value='true' <%= node.isVisible() ? "checked" : "" %>><br>
-		<input type='hidden' name='nodeID' value='<%= node.getID() %>'>
-		<input type='hidden' name='action' value='updateNode'><br>
-		<input type='submit' value='Update Node'>
-	</form></div>
+		<div class='control-grid'>
+			<div id='nodeControl' > <form action='GMControlNode' method='post' id='nodeForm'>	
+				<!-- Mindware toggle -->
+				<label for='mindware'>Running mindware? </label>
+				<input type='checkbox' id='mindware' name='mindware' value='true' <%= node.isMindware() ? "checked" : "" %>><br>
+				<!-- Defended toggle -->
+				<label for='defended'>Node is Defended? </label>
+				<input type='checkbox' id='defended' name='defended' value='true' <%= node.isDefended() ? "checked" : "" %>><br>
+				<!-- Visible toggle -->
+				<label for='visible'>Node is Visible? </label>
+				<input type='checkbox' id='visible' name='visible' value='true' <%= node.isVisible() ? "checked" : "" %>><br>
+				<input type='hidden' name='nodeID' value='<%= node.getID() %>'>
+				<input type='hidden' name='action' value='updateNode'><br>
+			</form></div>
+			<div id='updateNode'>
+				<input type='submit' value='Update Node' form='nodeForm'>
+			</div>
+			<div id='rebootNode'>
+				<input type='button' value='Begin Reboot'><br><br>
+				<input type='button' value='Complete Reboot'>
+			</div>
+		</div>
+	</div>
+		
 	<!-- List of Accounts -->
-	<div id='accounts'><h3>Node Accounts</h3>
+	<div id='accounts' class='container'><h3>Node Accounts</h3>
 	
 	<table id='accountsTable'>
 		<tr><th>Name</th><th>Status</th><th>Privileges</th><th>Damage</th><th>Wounds</th><th>Actions</th></tr>
