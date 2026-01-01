@@ -6,27 +6,34 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Deque;
 import java.util.List;
 
 import hackingtool.dao.HackingDAO;
+import hackingtool.dao.LoggingDAO;
 import hackingtool.devices.Account;
 import hackingtool.devices.Alerts;
 import hackingtool.devices.Hackable;
 import hackingtool.services.HackingService;
+import hackingtool.services.LoggingService;
 import hackingtool.devices.IntruderStatus;
 import hackingtool.devices.Privileges;
 import hackingtool.devices.User;
+import hackingtool.logging.Event;
+import hackingtool.logging.Observable;
+import hackingtool.logging.Observer;
 
 /**
  * Servlet implementation class GMControlNodeServlet
  */
 @WebServlet("/GMControlNode")
-public class GMControlNodeServlet extends HttpServlet {
+public class GMControlNodeServlet extends HttpServlet implements Observable {
 	private static final String UPDATE_ACCOUNT = "updateAccount";
 	private static final String ACTION = "action";
 	private static final String UPDATE_NODE = "updateNode";
 	private static final String CONTROL_NODE_JSP = "WEB-INF/views/GMControlNode.jsp";
 	private static final HackingService hackServ = new HackingDAO();
+	private static final LoggingService logServ  = new LoggingDAO();
 	private static final long serialVersionUID = 1L;
        
     /**
@@ -41,30 +48,20 @@ public class GMControlNodeServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Deque<Event> eventLog = null;
 		String idParam = request.getParameter("nodeID");
-		String action = request.getParameter("action");
 		Hackable node = null;
 		int nodeID = 0;
 	
 		if (idParam != null) {
 			nodeID = Integer.parseInt(idParam);
 			node = hackServ.getNode(nodeID);
+			eventLog = logServ.getEventsByNode(nodeID);
 		}
-		
-		if (action != null) {
-			if ("beginReboot".equalsIgnoreCase(action)) {
-				// determine if mote, host, or server
-				// mote, host take 1d6 TURNS to shutdown and same to reboot
-				// serve takes 1d6 MINUTES to shutdown and same to reboot
-			} else if ("completeReboot".equalsIgnoreCase(action)) {
-				// Reset system and app damage and wounds
-				// Users have to log back in
-			}
-		}
-		
 		List<User> users = hackServ.getAllUsers();
 		request.setAttribute("users", users);
 		request.setAttribute("node", node);
+		request.setAttribute("eventLog", eventLog);
 		request.getRequestDispatcher(CONTROL_NODE_JSP)
 		.forward(request, response);
 	}
@@ -194,14 +191,39 @@ public class GMControlNodeServlet extends HttpServlet {
 												  .setPriv(accPriv)
 												  .setDur(hackServ.getUser(accUserID).getDurability())
 												  .build() );
+			} else if ("reboot".equalsIgnoreCase(action)) {
+				node = hackServ.getNode(nodeID);
+				node.setDamage(0);
+				node.setWounds(0);
+				hackServ.updateNode(node);
 			}
 		}
-		List<User> users = hackServ.getAllUsers();
+		Deque<Event> eventLog = logServ.getEventsByNode(nodeID);
+		List<User>   users    = hackServ.getAllUsers();
 		node = hackServ.getNode(nodeID);
 		request.setAttribute("node", node);
 		request.setAttribute("users", users);
+		request.setAttribute("eventLog", eventLog);
 		request.getRequestDispatcher(CONTROL_NODE_JSP)
 		.forward(request, response);
+	}
+
+	@Override
+	public void addObserver(Observer observer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyObservers(Event event) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

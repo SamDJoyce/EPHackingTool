@@ -18,7 +18,6 @@ import hackingtool.logging.Event;
 // test
 public class Hacking implements Observable{
 	
-	private static final int ACCOUNT_DUR 	   = 25;
 	private static final int BF_MOD		       = -30;
 	private static final int HIDDEN_MOD	       = 10;
 	private static final int MINDWARE_MOD      = -30;
@@ -64,7 +63,7 @@ public class Hacking implements Observable{
 		this.hacker 	= hacker;
 		this.bruteForce	= bruteForce;
 		this.observers 	= new ArrayList<>();
-		this.log 		= new Event();
+		this.log 		= new Event(target.getID());
 	}
 	
 	// ----- getters/setters ----- \\
@@ -135,7 +134,7 @@ public class Hacking implements Observable{
 
 			// Perform the opposed test
 			success = test.opposedTest(hacker.getInfosec() + BF_MOD, target.getFirewall());
-			// Log the event
+			// Event the event
 			log.add(hacker.getName() + ATTEMPTING_BF_INTRUSION);
 			log.add(HACKER_ROLLED + test.getAttRoll() + "/" + (hacker.getInfosec() + BF_MOD) + " - " + test.getAttOutcome());
 			log.add(TARGET_ROLLED + test.getDefRoll() + "/" + target.getFirewall() + " - " + test.getDefOutcome());
@@ -183,7 +182,7 @@ public class Hacking implements Observable{
 				if (target.getAlert() == Alerts.NONE) {
 					// Trigger a passive alert
 					target.setAlert(Alerts.PASSIVE);
-					// Log the alert
+					// Event the alert
 					log.add(Alerts.PASSIVE.toString() + ALERT_TRIGGERED);
 					// Update the node in the DB
 					hackServ.updateNode(target);
@@ -221,7 +220,7 @@ public class Hacking implements Observable{
 				a.improveStatus();
 			}
 			
-			// Log the event
+			// Event the event
 			log.add(STATUS_IMPROVED + a.getStatus().toString());
 		} else { // Failure
 			checkExposure(attOutcome, a);
@@ -272,7 +271,7 @@ public class Hacking implements Observable{
 			target.setAlert(Alerts.PASSIVE);
 		}
 		
-		// Log events
+		// Event events
 		log.add(hacker.getName() + " attacked " + target.getName());
 		if(combat.isOpposed()) { // Opposed check
 			log.add(combat.getAttRoll() + "/" + hacker.getInfosec() + " " + combat.getAttOutcome());
@@ -352,11 +351,11 @@ public class Hacking implements Observable{
 		
 		target.setAlert(alert);
 		
-		// Log Alerts triggered
+		// Event Alerts triggered
 		log.add(alert.toString() + ALERT_TRIGGERED);
-		// Log privileges gained
+		// Event privileges gained
 		log.add(priv.toString() + PRIVILEGES_AQUIRED);
-		// Log Intruder Status
+		// Event Intruder Status
 		log.add(status.toString() + STATUS_AQUIRED);;
 		
 		return intruder;
@@ -381,7 +380,7 @@ public class Hacking implements Observable{
 							  .build();
 		// Update the target
 		target.setAlert(Alerts.ACTIVE);
-		// Log the event
+		// Event the event
 		log.add(Alerts.ACTIVE.toString() + ALERT_TRIGGERED);
 		log.add(hacker.getName() + SPOTTED_BY + target.getName());
 		return intruder;
@@ -436,11 +435,11 @@ public class Hacking implements Observable{
 		// Update the target object and DB
 		target.setAlert(alert);
 		
-		// Log Alerts triggered
+		// Event Alerts triggered
 		log.add(alert.toString() + ALERT_TRIGGERED);
-		// Log privileges gained
+		// Event privileges gained
 		log.add(priv.toString() + PRIVILEGES_AQUIRED);
-		// Log Intruder Status
+		// Event Intruder Status
 		log.add(status.toString() + STATUS_AQUIRED);
 		
 		return intruder;
@@ -517,7 +516,7 @@ public class Hacking implements Observable{
 		for (Observer o : observers) {
 			o.update(event);
 		}
-		log = new Event();
+		log = new Event(target.getID());
 	}
 
 }

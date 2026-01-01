@@ -28,8 +28,9 @@
 
 <body>
 	<!-- Target System Information -->
-	<h1>Target Node: <%= target.getName() %> </h1>
+	<h1>Target Node: <%=target.getName()%> </h1>
 	<p><a href='Nodes'>&larr; back to Nodes List</a></p>
+	<p><a href='Hacking?targetID=<%= target.getID() %>&hackerID=<%= hacker.getID() %>'>Refresh page</a></p>
 	<div id="target" class='container'>
 		<h2>Node</h2>
 		<table id="targetTable">
@@ -37,93 +38,98 @@
 			<tr><th>Name</th><th>Firewall</th><th>Infosec</th><th>Alert</th><th>Damage</th><th>Wounds</th></tr>
 			<!-- Data Rows -->
 			<tr>
-				<td><%= target.getName() %></td>
-				<td><%= target.getFirewall() %></td>
-				<td><%= target.getInfosec() %></td>
-				<td><%= target.getAlertString() %></td>
-				<td><%= target.getDamage() %>/<%= target.getDurability() %></td>
-				<td><%= target.getWounds() %></td>
+				<td><%=target.getName()%></td>
+				<td><%=target.getFirewall()%></td>
+				<td><%=target.getInfosec()%></td>
+				<td><%=target.getAlertString()%></td>
+				<td><%=target.getDamage()%>/<%=target.getDurability()%></td>
+				<td><%=target.getWounds()%></td>
 			</tr>			
 		</table>
 		<!-- Action buttons -->
 		<!-- Intrusion -->
 		<form method='post' action='Hacking'>
 			<input type='hidden' name='action'value='intrusion'>
-			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
-			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
-			<input type='hidden' name='sniffed' value='<%= sniffed %>'>
+			<input type='hidden' name='targetID' value='<%=target.getID()%>'>
+			<input type='hidden' name='hackerID' value='<%=hacker.getID()%>'>
+			<input type='hidden' name='sniffed' value='<%=sniffed%>'>
 			<input type='submit' value='Perform Intrusion'>
 			<input type='checkbox' name='bruteForce' value='true' id='bfCheck'>
 			<label for='bfCheck'>Brute force</label>
 		</form>
-		<% 
+		<%
 		if (!sniffed) {
 		%>
 		<!-- Sniff Traffic -->
 		<form method='get' action='Hacking'>
 			<input type='hidden' name='sniffed' value='true'>
-			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
-			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
+			<input type='hidden' name='targetID' value='<%=target.getID()%>'>
+			<input type='hidden' name='hackerID' value='<%=hacker.getID()%>'>
 			<input type='submit' value='Sniff Connections'>
 		</form>
 		<%
-		}	
+		}
 		%>
 		<!-- Mesh Attack -->
 		<form method='post' action='Hacking'>
 			<input type='hidden' name='action' value='meshAttack'>
-			<input type='hidden' name='targetID' value='<%= target.getID() %>'>
-			<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
-			<input type='hidden' name='sniffed' value='<%= sniffed %>'>
+			<input type='hidden' name='targetID' value='<%=target.getID()%>'>
+			<input type='hidden' name='hackerID' value='<%=hacker.getID()%>'>
+			<input type='hidden' name='sniffed' value='<%=sniffed%>'>
 			<input type='submit' value='Mesh Attack'>
-			<% if (account != null) { %>
+			<%
+			if (account != null) {
+			%>
 				<input type='checkbox' id='local' name='local' value='true' >
 				<label for='local'>Local Attack</label>
-			<%} else { %>
+			<%
+			} else {
+			%>
 				<input type='hidden' name='local' value='false'>
-			<%} %>
+			<%
+			}
+			%>
 		</form>
-		<% 	
+		<%
 		if (account != null) {
 		%>
 			<!-- These tests are only possible with an account -->
 			<!-- Improve status -->
 			<form method='post' action='Hacking'>
 				<input type='hidden' name='action'value='improveStatus'>
-				<input type='hidden' name='targetID' value='<%= target.getID() %>'>
-				<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
-				<input type='hidden' name='sniffed' value='<%= sniffed %>'>
+				<input type='hidden' name='targetID' value='<%=target.getID()%>'>
+				<input type='hidden' name='hackerID' value='<%=hacker.getID()%>'>
+				<input type='hidden' name='sniffed' value='<%=sniffed%>'>
 				<input type='submit' value='Improve Status'>
 			</form>
 			<!-- Subversion -->
 			<form method='post' action='Hacking'>
 				<input type='hidden' name='action' value='subversion'>
-				<input type='hidden' name='targetID' value='<%= target.getID() %>'>
-				<input type='hidden' name='hackerID' value='<%= hacker.getID() %>'>
-				<input type='hidden' name='sniffed' value='<%= sniffed %>'>	
+				<input type='hidden' name='targetID' value='<%=target.getID()%>'>
+				<input type='hidden' name='hackerID' value='<%=hacker.getID()%>'>
+				<input type='hidden' name='sniffed' value='<%=sniffed%>'>	
 				<input type='submit' value='Subvert System'>
 			</form>
 		<!-- Linked nodes list -->
-		<%		
+		<%
 		}
-		if (linkedNodes != null && !linkedNodes.isEmpty() && sniffed) {
-			%>
+				if (linkedNodes != null && !linkedNodes.isEmpty() && sniffed) {
+		%>
 				<h3>Linked Nodes</h3>
 				<div class="linked-nodes">
 			<%
-			    for (Hackable node : linkedNodes) {
+			for (Hackable node : linkedNodes) {
 			%>
-			    <a class="node-card" href="Hacking?targetID=<%= node.getID() %>&hackerID=<%= hacker.getID() %>">
-			        <div class="node-name"><%= node.getName() %></div>
+			    <a class="node-card" href="Hacking?targetID=<%=node.getID()%>&hackerID=<%=hacker.getID()%>">
+			        <div class="node-name"><%=node.getName()%></div>
 			        <div class="node-meta">Linked System</div>
 			    </a>
 			<%
-				}
 			}
+					}
 			%>
 			</div>
 	</div>
-	<hr>
 	<div id="hacker" class='container'>
 		<h2>Hacker</h2>
 		<table>
@@ -131,19 +137,18 @@
 			<tr><th>Name</th><th>Infosec</th><th>Firewall</th><th>Account</th><th>Status</th><th>Damage</th><th>Wounds</th></tr>
 			<!-- Data Rows -->
 			<tr>
-				<td><%= hacker.getName() %></td>
-				<td><%= hacker.getInfosec() %></td>
-				<td><%= hacker.getFirewall() %></td>
-				<td><%= account != null ? account.getPriv() : "None" %></td>
-				<td><%= account != null ? account.getStatus() : "N/A" %></td>
-				<td><%= hacker.getDamage() %>/<%= hacker.getDurability() %></td>
-				<td><%= hacker.getWounds() %></td>
+				<td><%=hacker.getName()%></td>
+				<td><%=hacker.getInfosec()%></td>
+				<td><%=hacker.getFirewall()%></td>
+				<td><%=account != null ? account.getPriv() : "None"%></td>
+				<td><%=account != null ? account.getStatus() : "N/A"%></td>
+				<td><%=hacker.getDamage()%>/<%=hacker.getDurability()%></td>
+				<td><%=hacker.getWounds()%></td>
 			</tr>
 		</table>
 	</div>
-	<hr>
 	<!-- Show activity logs -->
-	<% 	
+	<%
 	if (eventLog != null){
 		Deque<String> log;
 		for (Event event : eventLog) {

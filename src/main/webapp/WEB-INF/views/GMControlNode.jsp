@@ -6,11 +6,14 @@
     import='hackingtool.devices.IntruderStatus'
     import='hackingtool.devices.Privileges'
     import='hackingtool.devices.User'
+    import='hackingtool.logging.Event'
     import='java.util.List'
+    import='java.util.Deque'
 %>
 <%
 	Hackable node = (Hackable) request.getAttribute("node");
 	List<User> users = (List<User>) request.getAttribute("users");
+	Deque<Event> eventLog = (Deque<Event>) request.getAttribute("eventLog");
 %>
 <!DOCTYPE html>
 <html>
@@ -23,12 +26,11 @@
 
 <body>
 	<h1>Control Node</h1>
-	<h2><%= node.getName() %></h2>
 	<p><a href='GMScreen'>&larr; back to GM Screen</a></p>
-	<br>
+	<p><a href='GMControlNode?nodeID=<%= node.getID() %>'>Refresh page</a></p>
 	<div id='nodeInfo' class='container'>
 	<!-- Stats bar w. firewall, infosec, OS -->
-	<div id='node'><h3>Node</h3>
+	<div id='node'><h2><%= node.getName() %></h2>
 	<table id="nodeTable">
 			<!-- Headers -->
 			<tr><th>Name</th><th>Firewall</th><th>Infosec</th><th>Alert</th><th>Damage</th><th>Wounds</th></tr>
@@ -64,8 +66,16 @@
 				<input type='submit' value='Update Node' form='nodeForm'>
 			</div>
 			<div id='rebootNode'>
-				<input type='button' value='Begin Reboot'><br><br>
-				<input type='button' value='Complete Reboot'>
+				<input type='button' value='Begin Reboot' id='beginRebootButton'><br><br>
+				<input type='button' value='+' id='plusButton'><input type='button' value='-' id='minusButton'><br><br>
+				<form action='GMControlNode' method='post'>
+					<input type='hidden' name='action' value='reboot'>
+					<input type='hidden' name='nodeID' value='<%= node.getID() %>'>
+					<input type='submit' value='Complete Reboot' id='completeRebootButton'>
+				</form>
+			</div>
+			<div id='rebootOutput'>
+				<!-- Text will be filled here by a JS function -->
 			</div>
 		</div>
 	</div>
@@ -157,8 +167,71 @@
 		</tr>
 	</table>
 	</div>
-	<!-- List of linked nodes -->
 	
-</body>
+	<!-- Show activity logs -->
+	<%
+	if (eventLog != null){
+		Deque<String> log;
+		for (Event event : eventLog) {
+			log = event.getLog();
+			for (String message : log){
+	%>
+			<p><%= message %> </p>
+	<%	
+			}
+	%>
+			<br>
+	<%
+		}		
+	}
+	%>
 
+</body>
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+	    const beginRebootButton = document.getElementById("beginRebootButton");
+	    const plusButton = document.getElementById("plusButton");
+	    const minusButton = document.getElementById("minusButton");
+	    const rebootOutput = document.getElementById("rebootOutput");
+	    const shutdownMsg = "The system will shut down in ";
+	    const rebootMsg = "System reboot will complete in ";
+	    const rebootComplete = "Reboot sequence complete.";
+	    var   turns;
+	    var   curTurns;
+
+	    var   msg;
+	
+	    beginRebootButton.addEventListener("click", () => {
+	        // Generate random number between 1 and 6 (inclusive)
+	        turns = Math.floor(Math.random() * 6) + 1;
+	        curTurns = turns;
+			msg = shutdownMsg;
+	        rebootOutput.textContent = msg + curTurns + " turns.";
+	    });
+	    
+	    plusButton.addEventListener("click", () => {
+	    	if (curTurns != null) {
+	    		curTurns++;
+	    		rebootOutput.textContent = msg + curTurns + " turns.";
+	    	}
+	    });
+	    
+	    minusButton.addEventListener("click", () => {
+	    	if (curTurns != null) {
+		    	curTurns--;	
+	    		if(curTurns < 0){
+		    		curTurns = 0;
+		    	}
+		    	if (curTurns <= 0 && shutdownMsg == msg){
+		    		msg = rebootMsg;
+		    		curTurns = turns;
+		    	} else if (curTurns <= 0 && rebootMsg == msg){
+		    		rebootOutput.textContent = rebootComplete;
+		    		return;
+		    	}
+		    	rebootOutput.textContent = msg + curTurns + " turns.";
+	    	}
+	    });
+	});
+</script>
 </html>

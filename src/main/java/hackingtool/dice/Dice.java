@@ -156,31 +156,31 @@ public class Dice {
         this.target = target;
 
         if      (isCritSuccess()){  //Critical Success
-            System.out.printf("%d/%d, Critical Success%n",results, target);
+//            System.out.printf("%d/%d, Critical Success%n",results, target);
             eval = CRIT_SUCC;
             return eval;
         }else if(isCritFail()){     //critical fail
-            System.out.printf("%d/%d, Critical Failure%n",results, target);
+//            System.out.printf("%d/%d, Critical Failure%n",results, target);
             eval = CRIT_FAIL;
             return eval;
         }else if(isDubSupSuccess()){//double superior success
-            System.out.printf("%d/%d, x2 Superior Success%n",results, target);
+//            System.out.printf("%d/%d, x2 Superior Success%n",results, target);
             eval = DUB_SUP_SUCC;
             return eval;
         }else if(isSupSuccess()){   //superior success
-            System.out.printf("%d/%d, Superior Success%n",results, target);;
+//            System.out.printf("%d/%d, Superior Success%n",results, target);;
             eval = SUP_SUCC;
             return eval;
         }else if (isDubSupFail()){  //double superior failure
-            System.out.printf("%d/%d, x2 Superior Failure%n",results, target);
+//            System.out.printf("%d/%d, x2 Superior Failure%n",results, target);
             eval = DUB_SUP_FAIL;
             return eval;
         }else if (isSupFail()){     //superior failure
-            System.out.printf("%d/%d, Superior Failure%n",results, target);
+//            System.out.printf("%d/%d, Superior Failure%n",results, target);
             eval = SUP_FAIL;
             return eval;
         }else{                      //regular success or failure
-            System.out.printf("The roll is %d/%d.%nThis is a %s.%n", results, target, isHit() ? "success" : "failure");
+//            System.out.printf("The roll is %d/%d.%nThis is a %s.%n", results, target, isHit() ? "success" : "failure");
             if(isHit()) { 
             	eval = SUCCESS;
             	return SUCCESS;

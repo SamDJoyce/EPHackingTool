@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hackingtool.dao.HackingDAO;
-import hackingtool.devices.Device;
-import hackingtool.devices.DeviceFactory;
+import hackingtool.dao.LoggingDAO;
 import hackingtool.devices.Hackable;
 import hackingtool.devices.User;
 import hackingtool.hacking.Hacking;
 import hackingtool.logging.Logger;
 import hackingtool.logging.Observer;
 import hackingtool.services.HackingService;
+import hackingtool.services.LoggingService;
 
 /**
  * Servlet implementation class HackingServlet
@@ -46,11 +46,8 @@ public class HackingServlet extends HttpServlet {
 	private static final String INTRUSION 	   = "intrusion";
 	
 	private static final HackingService hackServ = new HackingDAO();
+	private static final LoggingService logServ = new LoggingDAO();
 	
-//	// Create example system for testing
-//	private static final Device target = DeviceFactory.getRandom("Mote");
-//	// Create example user for testing
-//	private static final User hacker = new User("TestUser", 75, 75, 25);
 	
 	// Fields
 	private Observer logger;
@@ -74,9 +71,10 @@ public class HackingServlet extends HttpServlet {
 		Hackable target = null;
 		User     hacker = null;
 		Boolean sniffed = false;
+		int nodeID = 0;
 		
 		if (nodeParam != null) {
-			int nodeID = Integer.parseInt(nodeParam);
+			nodeID = Integer.parseInt(nodeParam);
 			target = hackServ.getNode(nodeID);
 		}
 		if (hackerParam != null) {
@@ -93,6 +91,9 @@ public class HackingServlet extends HttpServlet {
 	                MISSING_TARGET_HACKER);
 	        return;
 	    }
+	    
+	    // Get the node's logs and pass them to the JSP
+	    request.setAttribute(EVENT_LOG, logServ.getEventsByNode(nodeID));
 		request.setAttribute(SNIFFED, sniffed);
 	    request.setAttribute(TARGET, target);
 	    request.setAttribute(HACKER, hacker);
@@ -107,16 +108,16 @@ public class HackingServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String  action			= null;
-		String  bruteForceParam = null;
-		Boolean bruteForce 		= false;
-		Boolean local 			= false;
-		Boolean sniffed 		= false;
-		int     targetID		= 0;
-		int 	hackerID		= 0;
-		Hackable target 		= null;
-		User 	hacker 			= null;
-		Hacking hack			= null;
+		String   action			 = null;
+		String   bruteForceParam = null;
+		Boolean  bruteForce 	 = false;
+		Boolean  local 			 = false;
+		Boolean  sniffed 		 = false;
+		int      targetID		 = 0;
+		int 	 hackerID		 = 0;
+		Hackable target 		 = null;
+		User 	 hacker 		 = null;
+		Hacking  hack			 = null;
 		List<Hackable> linkedNodes = null;
 		
 		
@@ -172,7 +173,7 @@ public class HackingServlet extends HttpServlet {
 		}
 		
 		request.setAttribute(TEST, hack.getTest());
-		request.setAttribute(EVENT_LOG, logger.getEventLog());
+		request.setAttribute(EVENT_LOG, logServ.getEventsByNode(targetID));
 		request.setAttribute(TARGET, hack.getTarget());
 		request.setAttribute(HACKER, hack.getHacker());
 		request.setAttribute(LINKED_NODES, linkedNodes);

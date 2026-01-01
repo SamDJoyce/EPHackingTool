@@ -8,8 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import hackingtool.dao.HackingDAO;
-import hackingtool.devices.Device;
-import hackingtool.devices.DeviceFactory;
 import hackingtool.services.HackingService;
 
 /**
@@ -29,18 +27,6 @@ public class NodesServlet extends HttpServlet {
      */
     public NodesServlet() {
         super();
-//        createTestDevices();
-//        hackServ.createUser("Test User", 80, 80, 25);
-//    	hackServ.createLink(8, 5);
-    }
-    
-    private void createTestDevices() {
-//    	for (int i = 0; i < 10; i++) {
-//        	Device device = DeviceFactory.get("mote");
-//        	device.setName(device.getName() + "-" + i);
-//        	if (i == 5) device.setVisible(false);
-//        	hackServ.createNode(device);
-//        }
 
     }
 

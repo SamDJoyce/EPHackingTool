@@ -8,8 +8,6 @@ package hackingtool.dice;
  */
 public class Tests {
 	
-	private int		attRoll;
-	private int		defRoll;
 	private Dice    dice;
 	private Dice 	attDice;
 	private Dice 	defDice;
@@ -111,14 +109,14 @@ public class Tests {
     	&&  defDice.isCritSuccess()) {
 			return false;
 		}
-    	
+    		// If both sides critically succeed, higher roll wins
     	if (attDice.isCritSuccess()
     	&&  defDice.isCritSuccess()) {
-    		return attRoll > defRoll;
+    		return attDice.getResults() > defDice.getResults();
     	}
     	    // If both succeed, higher roll wins
     	if (attDice.isHit() && defDice.isHit()) {
-    		return attRoll > defRoll;
+    		return attDice.getResults() > defDice.getResults();
     	}
     		// Attacker succeeds, defender fails
     	if (attDice.isHit() && !defDice.isHit() ) {

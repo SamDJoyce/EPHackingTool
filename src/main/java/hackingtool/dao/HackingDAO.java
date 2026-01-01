@@ -418,8 +418,16 @@ public class HackingDAO implements HackingService {
 	        return true;
 	    } catch (SQLException e) {
 		        e.printStackTrace();
-		        return false;
+		} finally {
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
+		return false;
 	}
 	
 	
